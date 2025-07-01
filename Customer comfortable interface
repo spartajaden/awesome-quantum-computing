@@ -9,7 +9,7 @@ class CustomerManagementSystem:
     def __init__(self):
         # 메인 윈도우 설정
         self.root = tk.Tk()
-        self.root.title("고객 관리 시스템")
+        self.root.title("현대해상 고객 관리 시스템")
         self.root.geometry("550x450")
         self.root.configure(bg="#f0f0f0")
         
@@ -29,7 +29,7 @@ class CustomerManagementSystem:
         # 제목 레이블
         title_label = tk.Label(
             self.root, 
-            text="고객 정보 관리 시스템",
+            text="현대해상 고객 정보 관리 시스템",
             font=("Arial", 18, "bold"),
             bg="#f0f0f0",
             pady=10
