@@ -1,0 +1,418 @@
+import tkinter as tk
+from tkinter import messagebox, ttk
+import json
+import os
+from datetime import datetime
+import re
+
+class CustomerManagementSystem:
+    def __init__(self):
+        # 메인 윈도우 설정
+        self.root = tk.Tk()
+        self.root.title("고객 관리 시스템")
+        self.root.geometry("550x450")
+        self.root.configure(bg="#f0f0f0")
+        
+        # 데이터 파일 경로
+        self.data_file = "customers.json"
+        
+        # 고객 데이터 로드
+        self.customers = self.load_customers()
+        
+        # 선택된 고객 ID
+        self.selected_customer_id = None
+        
+        # UI 구성
+        self.setup_ui()
+        
+    def setup_ui(self):
+        # 제목 레이블
+        title_label = tk.Label(
+            self.root, 
+            text="고객 정보 관리 시스템",
+            font=("Arial", 18, "bold"),
+            bg="#f0f0f0",
+            pady=10
+        )
+        title_label.pack(fill="x")
+        
+        # 구분선
+        separator = tk.Frame(self.root, height=2, bg="#cccccc")
+        separator.pack(fill="x", padx=20, pady=10)
+        
+        # 입력 프레임
+        input_frame = tk.Frame(self.root, bg="#f0f0f0")
+        input_frame.pack(fill="both", padx=20, pady=10)
+        
+        # 이름 입력
+        tk.Label(input_frame, text="이름:", bg="#f0f0f0", font=("Arial", 11)).grid(row=0, column=0, sticky="w", pady=8)
+        self.name_var = tk.StringVar()
+        name_entry = tk.Entry(input_frame, textvariable=self.name_var, width=30, font=("Arial", 11))
+        name_entry.grid(row=0, column=1, sticky="w", pady=8)
+        
+        # 주민등록번호 입력
+        tk.Label(input_frame, text="주민등록번호:", bg="#f0f0f0", font=("Arial", 11)).grid(row=1, column=0, sticky="w", pady=8)
+        self.ssn_var = tk.StringVar()
+        ssn_entry = tk.Entry(input_frame, textvariable=self.ssn_var, width=30, font=("Arial", 11))
+        ssn_entry.grid(row=1, column=1, sticky="w", pady=8)
+        
+        # 주민등록번호 형식 안내
+        ssn_info = tk.Label(
+            input_frame, 
+            text="형식: 000000-0000000", 
+            fg="#666666", 
+            bg="#f0f0f0", 
+            font=("Arial", 9)
+        )
+        ssn_info.grid(row=1, column=2, sticky="w", padx=5)
+        
+        # 전화번호 입력
+        tk.Label(input_frame, text="전화번호:", bg="#f0f0f0", font=("Arial", 11)).grid(row=2, column=0, sticky="w", pady=8)
+        self.phone_var = tk.StringVar()
+        phone_entry = tk.Entry(input_frame, textvariable=self.phone_var, width=30, font=("Arial", 11))
+        phone_entry.grid(row=2, column=1, sticky="w", pady=8)
+        
+        # 고객 유형 선택
+        tk.Label(input_frame, text="고객 유형:", bg="#f0f0f0", font=("Arial", 11)).grid(row=3, column=0, sticky="w", pady=8)
+        self.type_var = tk.StringVar(value="일반 고객")
+        type_options = ["일반 고객", "VIP 고객", "기업 고객", "신규 고객", "어르신 고객"]
+        type_menu = tk.OptionMenu(input_frame, self.type_var, *type_options)
+        type_menu.config(width=25, font=("Arial", 10))
+        type_menu.grid(row=3, column=1, sticky="w", pady=8)
+        
+        # 버튼 프레임
+        button_frame = tk.Frame(self.root, bg="#f0f0f0")
+        button_frame.pack(fill="x", padx=20, pady=10)
+        
+        # 등록 버튼
+        register_btn = tk.Button(
+            button_frame,
+            text="고객 등록",
+            command=self.register_customer,
+            bg="#4CAF50",
+            fg="white",
+            font=("Arial", 11, "bold"),
+            padx=15,
+            pady=8,
+            bd=0,
+            relief="flat"
+        )
+        register_btn.pack(side="left", padx=5)
+        
+        # 목록 보기 버튼
+        view_btn = tk.Button(
+            button_frame,
+            text="고객 목록 보기",
+            command=self.view_customers,
+            bg="#2196F3",
+            fg="white",
+            font=("Arial", 11),
+            padx=15,
+            pady=8,
+            bd=0,
+            relief="flat"
+        )
+        view_btn.pack(side="left", padx=5)
+        
+        # 초기화 버튼
+        clear_btn = tk.Button(
+            button_frame,
+            text="입력 초기화",
+            command=self.clear_inputs,
+            bg="#f0f0f0",
+            font=("Arial", 11),
+            padx=15,
+            pady=8,
+            bd=1
+        )
+        clear_btn.pack(side="right", padx=5)
+        
+        # 상태 표시줄
+        self.status_var = tk.StringVar()
+        self.status_var.set("준비됨")
+        status_bar = tk.Label(
+            self.root, 
+            textvariable=self.status_var,
+            bd=1,
+            relief="sunken",
+            anchor="w",
+            padx=10,
+            pady=5,
+            font=("Arial", 10),
+            bg="#f5f5f5"
+        )
+        status_bar.pack(side="bottom", fill="x")
+        
+        # 고객 수 표시
+        self.update_customer_count()
+    
+    def register_customer(self):
+        try:
+            # 입력값 가져오기
+            name = self.name_var.get().strip()
+            ssn = self.ssn_var.get().strip()
+            phone = self.phone_var.get().strip()
+            customer_type = self.type_var.get()
+            
+            # 입력 검증
+            if not name:
+                messagebox.showerror("입력 오류", "이름은 필수 입력 항목입니다.")
+                return
+            
+            if not ssn:
+                messagebox.showerror("입력 오류", "주민등록번호는 필수 입력 항목입니다.")
+                return
+            
+            # 주민등록번호 형식 검증 (000000-0000000)
+            ssn_pattern = re.compile(r'^\d{6}-\d{7}$')
+            if not ssn_pattern.match(ssn):
+                messagebox.showerror("입력 오류", "주민등록번호 형식이 올바르지 않습니다.\n예: 000000-0000000")
+                return
+            
+            # 중복 주민등록번호 확인
+            if any(customer.get("ssn") == ssn for customer in self.customers):
+                messagebox.showerror("입력 오류", "이미 등록된 주민등록번호입니다.")
+                return
+            
+            # 고객 ID 생성 (기존 ID 중 최대값 + 1)
+            new_id = 1
+            if self.customers:
+                new_id = max(customer.get("id", 0) for customer in self.customers) + 1
+            
+            # 고객 정보 생성
+            customer = {
+                "id": new_id,
+                "name": name,
+                "ssn": ssn,
+                "phone": phone,
+                "type": customer_type,
+                "registered_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            # 고객 목록에 추가
+            self.customers.append(customer)
+            
+            # 파일에 저장
+            self.save_customers()
+            
+            # 성공 메시지
+            messagebox.showinfo("등록 성공", f"{name}님의 정보가 성공적으로 등록되었습니다!")
+            
+            # 입력 필드 초기화
+            self.clear_inputs()
+            
+            # 상태 업데이트
+            self.status_var.set(f"고객 '{name}' 등록됨 - {datetime.now().strftime('%H:%M:%S')}")
+            
+            # 고객 수 업데이트
+            self.update_customer_count()
+        except Exception as e:
+            messagebox.showerror("오류 발생", f"고객 등록 중 오류가 발생했습니다: {str(e)}")
+    
+    def view_customers(self):
+        try:
+            if not self.customers:
+                messagebox.showinfo("알림", "등록된 고객이 없습니다.")
+                return
+            
+            # 새 창 생성
+            self.view_window = tk.Toplevel(self.root)
+            self.view_window.title("고객 목록")
+            self.view_window.geometry("700x500")
+            self.view_window.configure(bg="#ffffff")
+            
+            # 제목
+            tk.Label(
+                self.view_window, 
+                text="등록된 고객 목록",
+                font=("Arial", 14, "bold"),
+                bg="#ffffff",
+                pady=10
+            ).pack(fill="x")
+            
+            # 목록 프레임
+            list_frame = tk.Frame(self.view_window, bg="#ffffff")
+            list_frame.pack(fill="both", expand=True, padx=20, pady=10)
+            
+            # Treeview 위젯으로 고객 목록 표시
+            columns = ("id", "name", "ssn", "phone", "type", "registered_date")
+            self.customer_tree = ttk.Treeview(list_frame, columns=columns, show="headings", height=15)
+            
+            # 스크롤바 추가
+            scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=self.customer_tree.yview)
+            scrollbar.pack(side="right", fill="y")
+            self.customer_tree.configure(yscrollcommand=scrollbar.set)
+            
+            # 헤더 설정
+            self.customer_tree.heading("id", text="ID")
+            self.customer_tree.heading("name", text="이름")
+            self.customer_tree.heading("ssn", text="주민등록번호")
+            self.customer_tree.heading("phone", text="전화번호")
+            self.customer_tree.heading("type", text="고객 유형")
+            self.customer_tree.heading("registered_date", text="등록일")
+            
+            # 컬럼 너비 설정
+            self.customer_tree.column("id", width=30, anchor="center")
+            self.customer_tree.column("name", width=100)
+            self.customer_tree.column("ssn", width=150)
+            self.customer_tree.column("phone", width=120)
+            self.customer_tree.column("type", width=100)
+            self.customer_tree.column("registered_date", width=180)
+            
+            # 데이터 추가 - 주민등록번호는 일부만 표시 (보안)
+            for customer in self.customers:
+                # 이전 데이터 호환성 처리 - email 필드가 있고 ssn 필드가 없는 경우
+                if "email" in customer and "ssn" not in customer:
+                    customer["ssn"] = "000000-0000000"  # 기본값 설정
+                
+                # 주민등록번호 마스킹 처리
+                ssn = customer.get("ssn", "")
+                masked_ssn = ssn[:8] + "*******" if len(ssn) >= 14 else ssn
+                
+                self.customer_tree.insert("", "end", values=(
+                    customer.get("id", ""),
+                    customer.get("name", ""),
+                    masked_ssn,
+                    customer.get("phone", ""),
+                    customer.get("type", ""),
+                    customer.get("registered_date", "")
+                ))
+            
+            self.customer_tree.pack(fill="both", expand=True)
+            
+            # 선택 이벤트 바인딩
+            self.customer_tree.bind("<ButtonRelease-1>", self.on_customer_select)
+            
+            # 버튼 프레임
+            button_frame = tk.Frame(self.view_window, bg="#ffffff")
+            button_frame.pack(fill="x", padx=20, pady=15)
+            
+            # 삭제 버튼
+            delete_btn = tk.Button(
+                button_frame,
+                text="선택 고객 삭제",
+                command=self.delete_customer,
+                bg="#FF5252",
+                fg="white",
+                font=("Arial", 11),
+                padx=15,
+                pady=5,
+                bd=0,
+                relief="flat"
+            )
+            delete_btn.pack(side="left", padx=5)
+            
+            # 닫기 버튼
+            close_btn = tk.Button(
+                button_frame,
+                text="닫기",
+                command=self.view_window.destroy,
+                bg="#f0f0f0",
+                font=("Arial", 11),
+                padx=15,
+                pady=5
+            )
+            close_btn.pack(side="right", padx=5)
+        except Exception as e:
+            messagebox.showerror("오류 발생", f"고객 목록 표시 중 오류가 발생했습니다: {str(e)}")
+    
+    def on_customer_select(self, event):
+        try:
+            # 선택된 항목 가져오기
+            selected_item = self.customer_tree.selection()
+            if selected_item:
+                # 선택된 항목의 ID 값 가져오기
+                item_values = self.customer_tree.item(selected_item[0], "values")
+                if item_values and item_values[0]:
+                    self.selected_customer_id = int(item_values[0])
+        except Exception as e:
+            messagebox.showerror("오류 발생", f"고객 선택 중 오류가 발생했습니다: {str(e)}")
+            self.selected_customer_id = None
+    
+    def delete_customer(self):
+        try:
+            if self.selected_customer_id is None:
+                messagebox.showwarning("선택 오류", "삭제할 고객을 먼저 선택해주세요.")
+                return
+            
+            # 삭제 확인
+            customer_name = next((c.get("name", "") for c in self.customers if c.get("id") == self.selected_customer_id), "")
+            confirm = messagebox.askyesno(
+                "삭제 확인", 
+                f"'{customer_name}' 고객의 정보를 정말 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다."
+            )
+            
+            if not confirm:
+                return
+            
+            # 고객 삭제
+            self.customers = [c for c in self.customers if c.get("id") != self.selected_customer_id]
+            
+            # 파일에 저장
+            self.save_customers()
+            
+            # 목록 갱신
+            for item in self.customer_tree.get_children():
+                item_id = self.customer_tree.item(item, "values")[0]
+                if item_id and int(item_id) == self.selected_customer_id:
+                    self.customer_tree.delete(item)
+                    break
+            
+            # 상태 업데이트
+            self.status_var.set(f"고객 '{customer_name}' 삭제됨 - {datetime.now().strftime('%H:%M:%S')}")
+            
+            # 선택 초기화
+            self.selected_customer_id = None
+            
+            # 고객 수 업데이트
+            self.update_customer_count()
+            
+            # 성공 메시지
+            messagebox.showinfo("삭제 완료", f"{customer_name} 고객의 정보가 삭제되었습니다.")
+        except Exception as e:
+            messagebox.showerror("오류 발생", f"고객 삭제 중 오류가 발생했습니다: {str(e)}")
+    
+    def clear_inputs(self):
+        self.name_var.set("")
+        self.ssn_var.set("")
+        self.phone_var.set("")
+        self.type_var.set("일반 고객")
+    
+    def load_customers(self):
+        try:
+            if not os.path.exists(self.data_file):
+                return []
+            
+            with open(self.data_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                
+                # 데이터 마이그레이션: email 필드를 ssn 필드로 변환
+                for customer in data:
+                    if "email" in customer and "ssn" not in customer:
+                        customer["ssn"] = "000000-0000000"  # 기본값 설정
+                
+                return data
+        except Exception as e:
+            messagebox.showerror("파일 오류", f"고객 데이터 로드 중 오류가 발생했습니다: {str(e)}")
+            return []
+    
+    def save_customers(self):
+        try:
+            with open(self.data_file, 'w', encoding='utf-8') as f:
+                json.dump(self.customers, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            messagebox.showerror("파일 오류", f"고객 데이터 저장 중 오류가 발생했습니다: {str(e)}")
+    
+    def update_customer_count(self):
+        count = len(self.customers)
+        self.status_var.set(f"등록된 고객 수: {count}")
+    
+    def run(self):
+        try:
+            self.root.mainloop()
+        except Exception as e:
+            messagebox.showerror("시스템 오류", f"애플리케이션 실행 중 오류가 발생했습니다: {str(e)}")
+
+if __name__ == "__main__":
+    app = CustomerManagementSystem()
+    app.run()
