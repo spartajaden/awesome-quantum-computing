@@ -10,7 +10,8 @@
     .message { margin: 5px 0; padding: 5px; background: #f0f0f0; border-radius: 5px; }
     .user-message { text-align: right; background: #e0f7fa; }
     button { margin: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
-    #userInput { width: 80%; padding: 15px; font-size: 16px; margin-top: 10px; }
+    #userInput { width: 60%; padding: 15px; font-size: 16px; margin-top: 10px; }
+    .input-container { display: flex; align-items: center; gap: 10px; }
     .form-group { margin: 10px 0; text-align: left; }
     .form-group label { display: block; margin-bottom: 5px; }
     .form-group input, .form-group select { width: 100%; padding: 8px; font-size: 14px; }
@@ -60,7 +61,11 @@
         <option value="500">5,000만 원 이상</option>
       </select>
     </div>
-    <input type="text" id="userInput" placeholder="메시지를 입력하세요">
+    <div class="input-container">
+      <input type="text" id="userInput" placeholder="메시지를 입력하세요">
+      <button onclick="sendMessage(document.getElementById('userInput').value); document.getElementById('userInput').value=''">전송</button>
+      <button onclick="connectToAgent()">상담사 연결</button>
+    </div>
   </div>
   <div class="disclaimer">
     * 본 챗봇은 정보 제공 목적으로만 사용됩니다. 보험 가입, 계약, 청구 등 법적 효력이 있는 사항은 현대해상 공식 상담원 또는 지점을 통해 확인하시기 바랍니다.
@@ -69,6 +74,10 @@
   <script>
     // Ensure google.script.run is available and handle errors gracefully
     function sendMessage(input) {
+      if (!input.trim()) {
+        updateChat("메시지를 입력해 주세요.", false);
+        return;
+      }
       if (typeof google === 'undefined' || !google.script || !google.script.run) {
         updateChat("오류: 이 페이지는 Google Apps Script 환경에서만 작동합니다. 웹 앱 URL을 통해 접근해 주세요.", false);
         return;
@@ -92,6 +101,10 @@
         updateChat("오류: 요청 처리 중 문제가 발생했습니다. 다시 시도해 주세요.", false);
         console.error(e);
       }
+    }
+
+    function connectToAgent() {
+      updateChat("상담사 연결 요청: 현대해상 고객센터(1588-5656)로 연락 주시거나, 가까운 지점을 방문해 주세요.", false);
     }
 
     function displayResponse(response) {
