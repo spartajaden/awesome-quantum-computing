@@ -1,0 +1,195 @@
+
+import tkinter as tk
+from tkinter import messagebox, ttk
+import json
+import os
+import uuid
+from datetime import datetime
+
+class CustomerInfoApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("고객 정보 입력")
+        self.root.geometry("600x700")
+
+        # 입력 필드 라벨 및 엔트리 생성
+        self.create_widgets()
+
+    def create_widgets(self):
+        # 입력 폼 레이아웃
+        tk.Label(self.root, text="고객 정보 입력", font=("Arial", 16, "bold")).grid(row=0, column=0, columnspan=2, pady=10)
+
+        # ID (자동 생성, 표시만)
+        tk.Label(self.root, text="ID:").grid(row=1, column=0, padx=10, pady=5, sticky="e")
+        self.id_label = tk.Label(self.root, text="자동 생성됨")
+        self.id_label.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+        # 페르소나명
+        tk.Label(self.root, text="페르소나명 *:").grid(row=2, column=0, padx=10, pady=5, sticky="e")
+        self.persona_entry = tk.Entry(self.root, width=40)
+        self.persona_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        # 연령대
+        tk.Label(self.root, text="연령대 *:").grid(row=3, column=0, padx=10, pady=5, sticky="e")
+        self.age_combobox = ttk.Combobox(self.root, values=["20대", "30대", "40대", "50대"], width=37)
+        self.age_combobox.grid(row=3, column=1, padx=10, pady=5)
+
+        # 성별
+        tk.Label(self.root, text="성별 *:").grid(row=4, column=0, padx=10, pady=5, sticky="e")
+        self.gender_combobox = ttk.Combobox(self.root, values=["남성", "여성"], width=37)
+        self.gender_combobox.grid(row=4, column=1, padx=10, pady=5)
+
+        # 직업
+        tk.Label(self.root, text="직업:").grid(row=5, column=0, padx=10, pady=5, sticky="e")
+        self.job_entry = tk.Entry(self.root, width=40)
+        self.job_entry.grid(row=5, column=1, padx=10, pady=5)
+
+        # 거주지
+        tk.Label(self.root, text="거주지:").grid(row=6, column=0, padx=10, pady=5, sticky="e")
+        self.residence_entry = tk.Entry(self.root, width=40)
+        self.residence_entry.grid(row=6, column=1, padx=10, pady=5)
+
+        # 차량 정보
+        tk.Label(self.root, text="차량 정보:").grid(row=7, column=0, padx=10, pady=5, sticky="e")
+        self.vehicle_entry = tk.Entry(self.root, width=40)
+        self.vehicle_entry.grid(row=7, column=1, padx=10, pady=5)
+
+        # 운전 경력
+        tk.Label(self.root, text="운전 경력:").grid(row=8, column=0, padx=10, pady=5, sticky="e")
+        self.driving_exp_entry = tk.Entry(self.root, width=40)
+        self.driving_exp_entry.grid(row=8, column=1, padx=10, pady=5)
+
+        # 가족 구성
+        tk.Label(self.root, text="가족 구성:").grid(row=9, column=0, padx=10, pady=5, sticky="e")
+        self.family_entry = tk.Entry(self.root, width=40)
+        self.family_entry.grid(row=9, column=1, padx=10, pady=5)
+
+        # 현재 가입 상품
+        tk.Label(self.root, text="현재 가입 상품:").grid(row=10, column=0, padx=10, pady=5, sticky="e")
+        self.insurance_entry = tk.Entry(self.root, width=40)
+        self.insurance_entry.grid(row=10, column=1, padx=10, pady=5)
+
+        # 주요 특약
+        tk.Label(self.root, text="주요 특약:").grid(row=11, column=0, padx=10, pady=5, sticky="e")
+        self.coverage_entry = tk.Entry(self.root, width=40)
+        self.coverage_entry.grid(row=11, column=1, padx=10, pady=5)
+
+        # 월 평균 보험료
+        tk.Label(self.root, text="월 평균 보험료 (만원):").grid(row=12, column=0, padx=10, pady=5, sticky="e")
+        self.premium_entry = tk.Entry(self.root, width=40)
+        self.premium_entry.grid(row=12, column=1, padx=10, pady=5)
+
+        # 주요 주행 패턴
+        tk.Label(self.root, text="주요 주행 패턴:").grid(row=13, column=0, padx=10, pady=5, sticky="e")
+        self.driving_pattern_entry = tk.Entry(self.root, width=40)
+        self.driving_pattern_entry.grid(row=13, column=1, padx=10, pady=5)
+
+        # 운전 습관
+        tk.Label(self.root, text="운전 습관:").grid(row=14, column=0, padx=10, pady=5, sticky="e")
+        self.driving_habit_entry = tk.Entry(self.root, width=40)
+        self.driving_habit_entry.grid(row=14, column=1, padx=10, pady=5)
+
+        # 정보 탐색 채널
+        tk.Label(self.root, text="정보 탐색 채널:").grid(row=15, column=0, padx=10, pady=5, sticky="e")
+        self.info_channel_entry = tk.Entry(self.root, width=40)
+        self.info_channel_entry.grid(row=15, column=1, padx=10, pady=5)
+
+        # 핵심 니즈
+        tk.Label(self.root, text="핵심 니즈:").grid(row=16, column=0, padx=10, pady=5, sticky="e")
+        self.needs_entry = tk.Entry(self.root, width=40)
+        self.needs_entry.grid(row=16, column=1, padx=10, pady=5)
+
+        # 페인 포인트
+        tk.Label(self.root, text="페인 포인트:").grid(row=17, column=0, padx=10, pady=5, sticky="e")
+        self.pain_points_entry = tk.Entry(self.root, width=40)
+        self.pain_points_entry.grid(row=17, column=1, padx=10, pady=5)
+
+        # 현대해상 다이렉트 선호 이유/기대
+        tk.Label(self.root, text="선호 이유/기대:").grid(row=18, column=0, padx=10, pady=5, sticky="e")
+        self.preference_entry = tk.Entry(self.root, width=40)
+        self.preference_entry.grid(row=18, column=1, padx=10, pady=5)
+
+        # 저장 버튼
+        tk.Button(self.root, text="정보 저장", command=self.save_info, bg="#4CAF50", fg="white", width=20).grid(row=19, column=0, columnspan=2, pady=20)
+
+    def save_info(self):
+        # 입력 데이터 수집
+        customer_info = {
+            "ID": f"P{str(uuid.uuid4())[:8]}",  # 고유 ID 생성
+            "페르소나명": self.persona_entry.get().strip(),
+            "연령대": self.age_combobox.get().strip(),
+            "성별": self.gender_combobox.get().strip(),
+            "직업": self.job_entry.get().strip(),
+            "거주지": self.residence_entry.get().strip(),
+            "차량 정보": self.vehicle_entry.get().strip(),
+            "운전 경력": self.driving_exp_entry.get().strip(),
+            "가족 구성": self.family_entry.get().strip(),
+            "현재 가입 상품": self.insurance_entry.get().strip(),
+            "주요 특약": self.coverage_entry.get().strip(),
+            "월 평균 보험료": self.premium_entry.get().strip(),
+            "주요 주행 패턴": self.driving_pattern_entry.get().strip(),
+            "운전 습관": self.driving_habit_entry.get().strip(),
+            "정보 탐색 채널": self.info_channel_entry.get().strip(),
+            "핵심 니즈": self.needs_entry.get().strip(),
+            "페인 포인트": self.pain_points_entry.get().strip(),
+            "선호 이유/기대": self.preference_entry.get().strip(),
+            "입력 시간": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+        # 필수 입력 항목 검증
+        required_fields = ["페르소나명", "연령대", "성별"]
+        for field in required_fields:
+            if not customer_info[field]:
+                messagebox.showerror("입력 오류", f"{field}는 필수 입력 항목입니다.")
+                return
+
+        # JSON 파일에 저장
+        try:
+            file_path = "customer_data.json"
+            data = []
+
+            # 기존 데이터 로드
+            if os.path.exists(file_path):
+                with open(file_path, "r", encoding="utf-8") as file:
+                    data = json.load(file)
+
+            # 새로운 데이터 추가
+            data.append(customer_info)
+
+            # 데이터 저장
+            with open(file_path, "w", encoding="utf-8") as file:
+                json.dump(data, file, ensure_ascii=False, indent=4)
+
+            messagebox.showinfo("성공", "고객 정보가 성공적으로 저장되었습니다!")
+            self.clear_fields()
+
+        except Exception as e:
+            messagebox.showerror("오류", f"정보 저장 중 오류 발생: {str(e)}")
+
+    def clear_fields(self):
+        # 입력 필드 초기화
+        self.persona_entry.delete(0, tk.END)
+        self.age_combobox.set("")
+        self.gender_combobox.set("")
+        self.job_entry.delete(0, tk.END)
+        self.residence_entry.delete(0, tk.END)
+        self.vehicle_entry.delete(0, tk.END)
+        self.driving_exp_entry.delete(0, tk.END)
+        self.family_entry.delete(0, tk.END)
+        self.insurance_entry.delete(0, tk.END)
+        self.coverage_entry.delete(0, tk.END)
+        self.premium_entry.delete(0, tk.END)
+        self.driving_pattern_entry.delete(0, tk.END)
+        self.driving_habit_entry.delete(0, tk.END)
+        self.info_channel_entry.delete(0, tk.END)
+        self.needs_entry.delete(0, tk.END)
+        self.pain_points_entry.delete(0, tk.END)
+        self.preference_entry.delete(0, tk.END)
+
+def main():
+    root = tk.Tk()
+    app = CustomerInfoApp(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
