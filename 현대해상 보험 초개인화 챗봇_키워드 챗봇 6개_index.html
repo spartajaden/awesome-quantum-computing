@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>현대해상 햇살봇</title>
+  <title>현대해상 하이케어봇</title>
   <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
   <style>
     body {
@@ -290,7 +290,7 @@
     <!-- 시작 화면 -->
     <div id="welcome-screen" class="welcome-screen">
       <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
-      <h2>현대해상 햇살봇</h2>
+      <h2>현대해상 하이케어봇</h2>
       <p>고객님의 상황에 맞는 맞춤형 보험 상담을 도와드립니다.</p>
       <button id="start-button" class="start-button">상담 시작하기</button>
     </div>
@@ -299,7 +299,7 @@
     <div id="profile-screen" class="hidden">
       <div class="header">
         <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
-        <h1>햇살봇과 함께하는 맞춤형 상담</h1>
+        <h1>하이케어봇과 함께하는 맞춤형 상담</h1>
       </div>
       
       <div class="profile-form">
@@ -341,10 +341,10 @@
           <label for="income">연소득 (만 원)</label>
           <select id="income">
             <option value="">선택하세요</option>
-            <option value="100">100</option>
-            <option value="300">300</option>
-            <option value="500">500</option>
-            <option value="1000">1000</option>
+            <option value="100">3000이하</option>
+            <option value="300">3000이상 ~ 5000미만</option>
+            <option value="500">5000이상 ~ 7000미만</option>
+            <option value="1000">7000이상</option>
           </select>
         </div>
         
@@ -377,7 +377,7 @@
     <div id="chat-screen" class="hidden">
       <div class="header">
         <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
-        <h1>햇살봇</h1>
+        <h1>하이케어봇</h1>
       </div>
       
       <div id="chat-container" class="chat-container">
