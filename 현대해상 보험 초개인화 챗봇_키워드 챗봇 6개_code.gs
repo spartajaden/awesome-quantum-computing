@@ -1,6 +1,6 @@
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index')
-    .setTitle('현대해상 하이케어봇')
+    .setTitle('현대해상 하이케어(Hi-Care) 봇')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
