@@ -1,6 +1,6 @@
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index')
-    .setTitle('현대해상 햇살봇')
+    .setTitle('현대해상 하이케어봇')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -14,7 +14,7 @@ function processUserInput(userInput, userProfile) {
   const disclaimer = "\n\n* 본 정보는 법적 구속력이 없으며, 정확한 내용은 상담원을 통해 확인해 주세요.";
 
   if (userInput.includes("안녕") || userInput.includes("시작") || userInput.includes("처음")) {
-    response = `안녕하세요, ${userProfile.name}님! 현대해상 햇살봇입니다. 무엇을 도와드릴까요?`;
+    response = `안녕하세요, ${userProfile.name}님! 현대해상 하이케어봇입니다. 무엇을 도와드릴까요?`;
     return response + disclaimer;
   }
 
