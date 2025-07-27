@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>현대해상 햇살봇</title>
+  <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
   <style>
     body {
       font-family: 'Noto Sans KR', sans-serif;
@@ -294,395 +295,519 @@
       <button id="start-button" class="start-button">상담 시작하기</button>
     </div>
     
-    <!-- Hegemony: System
-      <!-- 프로필 입력 화면 -->
-      <div id="profile-screen" class="hidden">
-        <div class="header">
-          <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
-          <h1>햇살봇과 함께하는 맞춤형 상담</h1>
-        </div>
-        
-        <div class="profile-form">
-          <h2>고객 정보 입력</h2>
-          <p>더 정확한 맞춤형 상담을 위해 정보를 입력해주세요.</p>
-          
-          <div class="form-group">
-            <label for="name">이름</label>
-            <input type="text" id="name" placeholder="이름을 입력하세요">
-          </div>
-          
-          <div class="form-group">
-            <label for="gender">성별</label>
-            <select id="gender">
-              <option value="">선택하세요</option>
-              <option value="남성">남성</option>
-              <option value="여성">여성</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="age">연령</label>
-            <input type="number" id="age" placeholder="나이를 입력하세요">
-          </div>
-          
-          <div class="form-group">
-            <label for="occupation">직업</label>
-            <select id="occupation">
-              <option value="">선택하세요</option>
-              <option value="사무직">사무직</option>
-              <option value="전문직">전문직</option>
-              <option value="자영업">자영업</option>
-              <option value="학생">학생</option>
-              <option value="기타">기타</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="income">연소득 (만 원)</label>
-            <select id="income">
-              <option value="">선택하세요</option>
-              <option value="100">100</option>
-              <option value="300">300</option>
-              <option value="500">500</option>
-              <option value="1000">1000</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="insurance-experience">보험 가입 경험</label>
-            <select id="insurance-experience">
-              <option value="">선택하세요</option>
-              <option value="없음">없음</option>
-              <option value="자동차보험만">자동차보험만</option>
-              <option value="실손보험만">실손보험만</option>
-              <option value="다양한 보험 가입">다양한 보험 가입</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="interest">관심 있는 보험 상품</label>
-            <select id="interest">
-              <option value="">선택하세요</option>
-              <option value="자동차보험">자동차보험</option>
-              <option value="실손보험">실손보험</option>
-              <option value="미정/상담필요">미정/상담필요</option>
-            </select>
-          </div>
-          
-          <button id="submit-profile">상담 시작하기</button>
-        </div>
+    <!-- 프로필 입력 화면 -->
+    <div id="profile-screen" class="hidden">
+      <div class="header">
+        <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
+        <h1>햇살봇과 함께하는 맞춤형 상담</h1>
       </div>
       
-      <!-- 챗봇 화면 -->
-      <div id="chat-screen" class="hidden">
-        <div class="header">
-          <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
-          <h1>햇살봇</h1>
+      <div class="profile-form">
+        <h2>고객 정보 입력</h2>
+        <p>더 정확한 맞춤형 상담을 위해 정보를 입력해주세요.</p>
+        
+        <div class="form-group">
+          <label for="name">이름</label>
+          <input type="text" id="name" placeholder="이름을 입력하세요">
         </div>
         
-        <div id="chat-container" class="chat-container">
-          <!-- 메시지가 여기에 동적으로 추가됩니다 -->
+        <div class="form-group">
+          <label for="gender">성별</label>
+          <select id="gender">
+            <option value="">선택하세요</option>
+            <option value="남성">남성</option>
+            <option value="여성">여성</option>
+          </select>
         </div>
         
-        <!-- 카테고리 버튼 영역 -->
-        <div id="category-buttons" class="category-buttons">
-          <div class="category-button" data-category="자동차보험">
-            <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_car.png');"></div>
-            <div class="category-title">자동차보험</div>
-            <div class="category-desc">자동차/이륜차/운전자</div>
-          </div>
-          <div class="category-button" data-category="실손의료보험">
-            <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_health.png');"></div>
-            <div class="category-title">실손의료보험</div>
-            <div class="category-desc">실손/건강</div>
-          </div>
-          <div class="category-button" data-category="상담예약">
-            <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_consult.png');"></div>
-            <div class="category-title">상담예약</div>
-            <div class="category-desc">전화/화상 상담</div>
-          </div>
-          <div class="category-button" data-category="보험료계산">
-            <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_calculate.png');"></div>
-            <div class="category-title">보험료계산</div>
-            <div class="category-desc">견적 확인</div>
-          </div>
-          <div class="category-button" data-category="추천상품">
-            <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_recommend.png');"></div>
-            <div class="category-title">추천상품</div>
-            <div class="category-desc">맞춤 추천</div>
-          </div>
-          <div class="category-button" data-category="지점안내">
-            <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_location.png');"></div>
-            <div class="category-title">지점안내</div>
-            <div class="category-desc">최근 지점</div>
-          </div>
+        <div class="form-group">
+          <label for="age">연령</label>
+          <input type="number" id="age" placeholder="나이를 입력하세요">
         </div>
         
-        <!-- 퀵버튼 영역 -->
-        <div id="quick-buttons" class="quick-buttons">
-          <!-- 퀵버튼은 동적으로 추가됩니다 -->
+        <div class="form-group">
+          <label for="occupation">직업</label>
+          <select id="occupation">
+            <option value="">선택하세요</option>
+            <option value="사무직">사무직</option>
+            <option value="전문직">전문직</option>
+            <option value="자영업">자영업</option>
+            <option value="학생">학생</option>
+            <option value="기타">기타</option>
+          </select>
         </div>
         
-        <div class="input-area">
-          <input type="text" id="user-input" placeholder="메시지를 입력하세요...">
-          <button id="send-button">전송</button>
+        <div class="form-group">
+          <label for="income">연소득 (만 원)</label>
+          <select id="income">
+            <option value="">선택하세요</option>
+            <option value="100">100</option>
+            <option value="300">300</option>
+            <option value="500">500</option>
+            <option value="1000">1000</option>
+          </select>
         </div>
+        
+        <div class="form-group">
+          <label for="insurance-experience">보험 가입 경험</label>
+          <select id="insurance-experience">
+            <option value="">선택하세요</option>
+            <option value="없음">없음</option>
+            <option value="자동차보험만">자동차보험만</option>
+            <option value="실손보험만">실손보험만</option>
+            <option value="다양한 보험 가입">다양한 보험 가입</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="interest">관심 있는 보험 상품</label>
+          <select id="interest">
+            <option value="">선택하세요</option>
+            <option value="자동차보험">자동차보험</option>
+            <option value="실손보험">실손보험</option>
+            <option value="미정/상담필요">미정/상담필요</option>
+          </select>
+        </div>
+        
+        <button id="submit-profile">상담 시작하기</button>
       </div>
-      
-      <div id="disclaimer">법적 구속력 없는 정보로, 상담원 확인 권장</div>
     </div>
-
-    <script>
-      let userProfile = {
-        name: "",
-        gender: "",
-        age: 0,
-        occupation: "",
-        income: 0,
-        insuranceExperience: "",
-        interest: ""
-      };
+    
+    <!-- 챗봇 화면 -->
+    <div id="chat-screen" class="hidden">
+      <div class="header">
+        <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
+        <h1>햇살봇</h1>
+      </div>
       
-      const insuranceProducts = {
-        "자동차보험": {
-          description: "자동차 사고로 인한 손해를 보상하는 상품입니다.",
-          subCategories: ["자동차보험", "이륜차보험", "운전자보험"],
-          quickButtons: ["자동차보험 견적", "이륜차보험 안내", "운전자보험 상담"]
-        },
-        "실손의료보험": {
-          description: "의료비를 보장하는 실손의료보험 상품입니다.",
-          subCategories: ["실손보험", "건강보험"],
-          quickButtons: ["실손보험 안내", "건강보험 상담"]
-        },
-        "상담예약": {
-          description: "전화 또는 화상 상담 예약 서비스입니다.",
-          subCategories: ["전화 상담", "화상 상담"],
-          quickButtons: ["전화 상담 예약", "화상 상담 예약"]
-        },
-        "보험료계산": {
-          description: "보험료 견적을 확인할 수 있습니다.",
-          subCategories: ["자동차보험 견적", "실손보험 견적"],
-          quickButtons: ["자동차보험 견적", "실손보험 견적"]
-        },
-        "추천상품": {
-          description: "고객님께 맞는 보험 상품을 추천합니다.",
-          subCategories: ["맞춤 추천", "가족 보험"],
-          quickButtons: ["맞춤 추천 받기", "가족 보험 안내"]
-        },
-        "지점안내": {
-          description: "가까운 지점 정보를 제공합니다.",
-          subCategories: ["지점 위치", "방문 예약"],
-          quickButtons: ["지점 위치 안내", "방문 예약"]
-        }
-      };
+      <div id="chat-container" class="chat-container">
+        <!-- 메시지가 여기에 동적으로 추가됩니다 -->
+      </div>
+      
+      <!-- 카테고리 버튼 영역 -->
+      <div id="category-buttons" class="category-buttons">
+        <div class="category-button" data-category="자동차보험">
+          <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_car.png');"></div>
+          <div class="category-title">자동차보험</div>
+          <div class="category-desc">자동차/이륜차/운전자</div>
+        </div>
+        <div class="category-button" data-category="실손의료보험">
+          <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_health.png');"></div>
+          <div class="category-title">실손의료보험</div>
+          <div class="category-desc">실손/건강</div>
+        </div>
+        <div class="category-button" data-category="상담예약">
+          <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_consult.png');"></div>
+          <div class="category-title">상담예약</div>
+          <div class="category-desc">전화/화상 상담</div>
+        </div>
+        <div class="category-button" data-category="보험료계산">
+          <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_calculate.png');"></div>
+          <div class="category-title">보험료계산</div>
+          <div class="category-desc">견적 확인</div>
+        </div>
+        <div class="category-button" data-category="추천상품">
+          <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_recommend.png');"></div>
+          <div class="category-title">추천상품</div>
+          <div class="category-desc">맞춤 추천</div>
+        </div>
+        <div class="category-button" data-category="지점안내">
+          <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_location.png');"></div>
+          <div class="category-title">지점안내</div>
+          <div class="category-desc">최근 지점</div>
+        </div>
+      </div>
+      
+      <!-- 퀵버튼 영역 -->
+      <div id="quick-buttons" class="quick-buttons">
+        <!-- 퀵버튼은 동적으로 추가됩니다 -->
+      </div>
+      
+      <div class="input-area">
+        <input type="text" id="user-input" placeholder="메시지를 입력하세요...">
+        <button id="send-button">전송</button>
+      </div>
+    </div>
+    
+    <div id="disclaimer">법적 구속력 없는 정보로, 상담원 확인 권장</div>
+  </div>
 
-      // Mock function to simulate saving user profile
-      function saveUserProfile(profile, callback) {
-        // Simulate a successful response
-        setTimeout(() => {
-          callback({ success: true });
-        }, 500);
+  <script>
+    // Initializing user profile
+    let userProfile = {
+      name: "",
+      gender: "",
+      age: 0,
+      occupation: "",
+      income: 0,
+      insuranceExperience: "",
+      interest: ""
+    };
+    
+    // Defining insurance products
+    const insuranceProducts = {
+      "자동차보험": {
+        description: "자동차 사고로 인한 손해를 보상하는 상품입니다.",
+        subCategories: ["자동차보험", "이륜차보험", "운전자보험"],
+        quickButtons: ["자동차보험 견적", "이륜차보험 안내", "운전자보험 상담"]
+      },
+      "실손의료보험": {
+        description: "의료비를 보장하는 실손의료보험 상품입니다.",
+        subCategories: ["실손보험", "건강보험"],
+        quickButtons: ["실손보험 안내", "건강보험 상담"]
+      },
+      "상담예약": {
+        description: "전화 또는 화상 상담 예약 서비스입니다.",
+        subCategories: ["전화 상담", "화상 상담"],
+        quickButtons: ["전화 상담 예약", "화상 상담 예약"]
+      },
+      "보험료계산": {
+        description: "보험료 견적을 확인할 수 있습니다.",
+        subCategories: ["자동차보험 견적", "실손보험 견적"],
+        quickButtons: ["자동차보험 견적", "실손보험 견적"]
+      },
+      "추천상품": {
+        description: "고객님께 맞는 보험 상품을 추천합니다.",
+        subCategories: ["맞춤 추천", "가족 보험"],
+        quickButtons: ["맞춤 추천 받기", "가족 보험 안내"]
+      },
+      "지점안내": {
+        description: "가까운 지점 정보를 제공합니다.",
+        subCategories: ["지점 위치", "방문 예약"],
+        quickButtons: ["지점 위치 안내", "방문 예약"]
       }
-
-      // Mock function to simulate processing user input
-      function processUserInput(message, profile, callback) {
-        let response = "문의하신 내용을 처리 중입니다. 자세한 상담을 원하시면 카테고리를 선택해주세요.";
-        if (message.toLowerCase().includes('자동차')) {
+    };
+    
+    // Storing persona data
+    let personaData = [];
+    
+    // Loading and parsing persona CSV
+    function loadPersonaData() {
+      Papa.parse(loadFileData("고객페르소나.csv"), {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: false,
+        transformHeader: header => header.trim().replace(/^"|"$/g, ''),
+        transform: (value, header) => {
+          let cleaned = value.trim().replace(/^"|"$/g, '');
+          return cleaned;
+        },
+        complete: results => {
+          personaData = results.data.map(row => ({
+            id: row["ID"],
+            name: row["페르소나명"],
+            ageGroup: row["연령대"],
+            gender: row["성별"],
+            occupation: row["직업"],
+            residence: row["거주지"],
+            vehicle: row["차량 정보"],
+            drivingExperience: row["운전 경력"],
+            family: row["가족 구성"],
+            currentProduct: row["현재 가입 상품 (현대해상)"],
+            specialClauses: row["주요 특약 (현대해상 다이렉트 기준)"],
+            monthlyPremium: parseFloat(row["월 평균 보험료 (추정)"]?.replace("만원", "") || 0),
+            drivingPattern: row["주요 주행 패턴"],
+            drivingHabit: row["운전 습관"],
+            infoChannel: row["정보 탐색 채널"],
+            coreNeeds: row["핵심 니즈"],
+            painPoints: row["페인 포인트"],
+            preferenceReason: row["현대해상 다이렉트 선호 이유/기대"]
+          }));
+        },
+        error: err => console.error("CSV parsing error:", err)
+      });
+    }
+    
+    // Matching user to closest persona
+    function findMatchingPersona(profile) {
+      if (!profile || !profile.age || !profile.gender || !profile.occupation) {
+        return null;
+      }
+      
+      const age = parseInt(profile.age);
+      const ageGroup = age >= 20 && age < 30 ? "20대" : age >= 30 && age < 50 ? "30대" : "40대";
+      let bestMatch = null;
+      let highestScore = 0;
+      
+      personaData.forEach(persona => {
+        let score = 0;
+        if (persona.ageGroup === ageGroup) score += 3;
+        if (persona.gender === profile.gender) score += 2;
+        if (persona.occupation.toLowerCase().includes(profile.occupation.toLowerCase())) score += 2;
+        if (profile.interest === "자동차보험" && persona.currentProduct.includes("자동차보험")) score += 1;
+        if (profile.interest === "실손보험" && !persona.currentProduct.includes("자동차보험")) score += 1;
+        
+        if (score > highestScore) {
+          highestScore = score;
+          bestMatch = persona;
+        }
+      });
+      
+      return bestMatch;
+    }
+    
+    // Generating personalized recommendation
+    function generateRecommendation(persona) {
+      if (!persona) {
+        return "고객님의 정보를 기반으로 적합한 보험 상품을 찾을 수 없습니다. 더 자세한 정보를 입력해 주세요.";
+      }
+      
+      return `고객님께 추천드리는 상품은 ${persona.currentProduct}입니다.  
+주요 특약: ${persona.specialClauses}  
+추정 월 보험료: ${persona.monthlyPremium}만원  
+고객님의 운전 패턴(${persona.drivingPattern})과 니즈(${persona.coreNeeds})에 적합하며, ${persona.preferenceReason}을 제공합니다.`;
+    }
+    
+    // Mock function to simulate saving user profile
+    function saveUserProfile(profile, callback) {
+      setTimeout(() => {
+        callback({ success: true });
+      }, 500);
+    }
+    
+    // Processing user input with persona-based recommendation
+    function processUserInput(message, profile, callback) {
+      let response = "문의하신 내용을 처리 중입니다. 자세한 상담을 원하시면 카테고리를 선택해주세요.";
+      const matchedPersona = findMatchingPersona(profile);
+      
+      if (message.toLowerCase().includes('자동차')) {
+        if (matchedPersona && matchedPersona.currentProduct.includes("자동차보험")) {
+          response = generateRecommendation(matchedPersona);
+        } else {
           response = "자동차보험에 대해 궁금하신 점이 있으시군요! 자세한 정보를 원하시면 퀵버튼을 선택해주세요.";
-        } else if (message.toLowerCase().includes('실손') || message.toLowerCase().includes('의료')) {
-          response = "실손의료보험에 대해 안내드립니다. 추가 정보를 위해 퀵버튼을 확인해주세요.";
-        } else if (message === "처음으로") {
-          response = "대화를 처음으로 되돌립니다.";
         }
-        setTimeout(() => {
-          callback(response);
-        }, 500);
+      } else if (message.toLowerCase().includes('실손') || message.toLowerCase().includes('의료')) {
+        response = "실손의료보험에 대해 안내드립니다. 추가 정보를 위해 퀵버튼을 확인해주세요.";
+      } else if (message.toLowerCase().includes('추천')) {
+        response = matchedPersona ? generateRecommendation(matchedPersona) : "맞춤 추천을 위해 더 자세한 정보를 입력해 주세요.";
+      } else if (message === "처음으로") {
+        response = "대화를 처음으로 되돌립니다.";
       }
       
-      document.addEventListener('DOMContentLoaded', function() {
-        const startButton = document.getElementById('start-button');
-        const submitProfileButton = document.getElementById('submit-profile');
-        const sendButton = document.getElementById('send-button');
-        const userInput = document.getElementById('user-input');
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const profileScreen = document.getElementById('profile-screen');
-        const chatScreen = document.getElementById('chat-screen');
-        const chatContainer = document.getElementById('chat-container');
-        const quickButtonsContainer = document.getElementById('quick-buttons');
-        const categoryButtons = document.querySelectorAll('.category-button');
+      setTimeout(() => {
+        callback(response);
+      }, 500);
+    }
+    
+    // Initializing event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // Loading persona data on page load
+      loadPersonaData();
+      
+      const startButton = document.getElementById('start-button');
+      const submitProfileButton = document.getElementById('submit-profile');
+      const sendButton = document.getElementById('send-button');
+      const userInput = document.getElementById('user-input');
+      const welcomeScreen = document.getElementById('welcome-screen');
+      const profileScreen = document.getElementById('profile-screen');
+      const chatScreen = document.getElementById('chat-screen');
+      const chatContainer = document.getElementById('chat-container');
+      const quickButtonsContainer = document.getElementById('quick-buttons');
+      const categoryButtons = document.querySelectorAll('.category-button');
+      
+      // Handling start button click
+      startButton.addEventListener('click', function() {
+        welcomeScreen.classList.add('hidden');
+        profileScreen.classList.remove('hidden');
+      });
+      
+      // Handling profile submission
+      submitProfileButton.addEventListener('click', function() {
+        userProfile.name = document.getElementById('name').value || "고객";
+        userProfile.gender = document.getElementById('gender').value || "미입력";
+        userProfile.age = parseInt(document.getElementById('age').value) || 30;
+        userProfile.occupation = document.getElementById('occupation').value || "미입력";
+        userProfile.income = parseInt(document.getElementById('income').value) || 0;
+        userProfile.insuranceExperience = document.getElementById('insurance-experience').value || "미입력";
+        userProfile.interest = document.getElementById('interest').value || "미정/상담필요";
         
-        startButton.addEventListener('click', function() {
-          welcomeScreen.classList.add('hidden');
-          profileScreen.classList.remove('hidden');
-        });
-        
-        submitProfileButton.addEventListener('click', function() {
-          userProfile.name = document.getElementById('name').value || "고객";
-          userProfile.gender = document.getElementById('gender').value || "미입력";
-          userProfile.age = parseInt(document.getElementById('age').value) || 30;
-          userProfile.occupation = document.getElementById('occupation').value || "미입력";
-          userProfile.income = parseInt(document.getElementById('income').value) || 0;
-          userProfile.insuranceExperience = document.getElementById('insurance-experience').value || "미입력";
-          userProfile.interest = document.getElementById('interest').value || "미정/상담필요";
-          
-          saveUserProfile(userProfile, function(result) {
-            if (result && result.success) {
-              profileScreen.classList.add('hidden');
-              chatScreen.classList.remove('hidden');
-              showTypingIndicator();
-              setTimeout(function() {
-                removeTypingIndicator();
-                addBotMessageWithMascot(`안녕하세요, ${userProfile.name}님! 현대 اصفه컨대상 햇살봇입니다. 자동차보험과 실손의료보험을 포함한 맞춤 상담을 시작합니다.`);
-                showTypingIndicator();
-                setTimeout(function() {
-                  removeTypingIndicator();
-                  if (userProfile.age >= 20 && userProfile.age < 30) {
-                    addBotMessageWithMascot("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
-                  } else if (userProfile.age >= 30 && userProfile.age < 50) {
-                    addBotMessageWithMascot("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
-                  } else {
-                    addBotMessageWithMascot("안전과 건강을 위한 상담을 도와드리겠습니다.");
-                  }
-                  updateInitialQuickButtons();
-                }, 1500);
-              }, 1500);
-            }
-          });
-        });
-        
-        categoryButtons.forEach(button => {
-          button.addEventListener('click', function() {
-            const category = this.getAttribute('data-category');
-            showProductInfo(category);
-          });
-        });
-        
-        sendButton.addEventListener('click', sendMessage);
-        userInput.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') sendMessage();
-        });
-        
-        function sendMessage() {
-          const message = userInput.value.trim();
-          if (message) {
-            addUserMessage(message);
-            userInput.value = '';
-            showTypingIndicator();
-            processUserInput(message, userProfile, function(response) {
-              removeTypingIndicator();
-              addBotMessageWithMascot(response);
-              if (message === "처음으로") {
-                resetChat();
-              } else {
-                updateQuickButtonsByMessage(message);
-              }
-            });
-          }
-        }
-        
-        function handleQuickButtonClick(buttonText) {
-          userInput.value = buttonText;
-          sendMessage();
-        }
-        
-        function updateInitialQuickButtons() {
-          updateQuickButtons(["자동차보험 안내", "실손의료보험 안내", "상담사 연결"]);
-        }
-        
-        function updateQuickButtons(buttons) {
-          quickButtonsContainer.innerHTML = '';
-          buttons.forEach(buttonText => {
-            const button = document.createElement('div');
-            button.className = 'quick-button';
-            button.textContent = buttonText;
-            button.addEventListener('click', function() { handleQuickButtonClick(buttonText); });
-            quickButtonsContainer.appendChild(button);
-          });
-          // Add "처음으로" button
-          const backButton = document.createElement('div');
-          backButton.className = 'quick-button';
-          backButton.textContent = '처음으로';
-          backButton.addEventListener('click', function() { handleQuickButtonClick('처음으로'); });
-          quickButtonsContainer.appendChild(backButton);
-        }
-        
-        function updateQuickButtonsByMessage(message) {
-          message = message.toLowerCase();
-          if (message.includes('자동차') || message.includes('차량')) {
-            updateQuickButtons(insuranceProducts["자동차보험"].quickButtons);
-          } else if (message.includes('실손') || message.includes('의료')) {
-            updateQuickButtons(insuranceProducts["실손의료보험"].quickButtons);
-          } else {
-            updateQuickButtons(["자동차보험 안내", "실손의료보험 안내", "상담사 연결"]);
-          }
-        }
-        
-        function resetChat() {
-          chatContainer.innerHTML = '';
-          showTypingIndicator();
-          setTimeout(function() {
-            removeTypingIndicator();
-            addBotMessageWithMascot(`안녕하세요, ${userProfile.name}님! 현대해상 햇살봇입니다. 자동차보험과 실손의료보험을 포함한 맞춤 상담을 시작합니다.`);
+        saveUserProfile(userProfile, function(result) {
+          if (result && result.success) {
+            profileScreen.classList.add('hidden');
+            chatScreen.classList.remove('hidden');
             showTypingIndicator();
             setTimeout(function() {
               removeTypingIndicator();
-              if (userProfile.age >= 20 && userProfile.age < 30) {
-                addBotMessageWithMascot("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
-              } else if (userProfile.age >= 30 && userProfile.age < 50) {
-                addBotMessageWithMascot("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
-              } else {
-                addBotMessageWithMascot("안전과 건강을 위한 상담을 도와드리겠습니다.");
-              }
-              updateInitialQuickButtons();
+              addBotMessageWithMascot(`안녕하세요, ${userProfile.name}님! 현대해상 햇살봇입니다. 자동차보험과 실손의료보험을 포함한 맞춤 상담을 시작합니다.`);
+              showTypingIndicator();
+              setTimeout(function() {
+                removeTypingIndicator();
+                const matchedPersona = findMatchingPersona(userProfile);
+                if (userProfile.age >= 20 && userProfile.age < 30) {
+                  addBotMessageWithMascot("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
+                  if (matchedPersona) {
+                    addBotMessageWithMascot(generateRecommendation(matchedPersona));
+                  }
+                } else if (userProfile.age >= 30 && userProfile.age < 50) {
+                  addBotMessageWithMascot("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
+                  if (matchedPersona) {
+                    addBotMessageWithMascot(generateRecommendation(matchedPersona));
+                  }
+                } else {
+                  addBotMessageWithMascot("안전과 건강을 위한 상담을 도와드리겠습니다.");
+                }
+                updateInitialQuickButtons();
+              }, 1500);
             }, 1500);
-          }, 1500);
-        }
-        
-        function showProductInfo(category) {
-          if (insuranceProducts[category]) {
-            addBotMessageWithMascot(`${insuranceProducts[category].description}`);
-            setTimeout(() => {
-              addBotMessageWithMascot(`관심 있는 ${category}의 세부 상품은 ${insuranceProducts[category].subCategories.join(', ')}입니다.`);
-              updateQuickButtons(insuranceProducts[category].quickButtons);
-            }, 1000);
           }
-        }
-        
-        function showTypingIndicator() {
-          const typingDiv = document.createElement('div');
-          typingDiv.className = 'message-group typing-group';
-          typingDiv.innerHTML = `
-            <div class="mascot"></div>
-            <div class="typing-indicator">
-              <span></span><span></span><span></span>
-            </div>`;
-          chatContainer.appendChild(typingDiv);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-        
-        function removeTypingIndicator() {
-          const typingGroup = document.querySelector('.typing-group');
-          if (typingGroup) typingGroup.remove();
-        }
-        
-        function addBotMessageWithMascot(message) {
-          const messageGroup = document.createElement('div');
-          messageGroup.className = 'message-group';
-          messageGroup.innerHTML = `
-            <div class="mascot"></div>
-            <div class="message bot-message">${message}</div>`;
-          chatContainer.appendChild(messageGroup);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-        
-        function addUserMessage(message) {
-          const messageElement = document.createElement('div');
-          messageElement.className = 'message user-message';
-          messageElement.textContent = message;
-          chatContainer.appendChild(messageElement);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
+        });
       });
-    </script>
+      
+      // Handling category button clicks
+      categoryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const category = this.getAttribute('data-category');
+          showProductInfo(category);
+        });
+      });
+      
+      // Handling send button and enter key
+      sendButton.addEventListener('click', sendMessage);
+      userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') sendMessage();
+      });
+      
+      // Sending user message
+      function sendMessage() {
+        const message = userInput.value.trim();
+        if (message) {
+          addUserMessage(message);
+          userInput.value = '';
+          showTypingIndicator();
+          processUserInput(message, userProfile, function(response) {
+            removeTypingIndicator();
+            addBotMessageWithMascot(response);
+            if (message === "처음으로") {
+              resetChat();
+            } else {
+              updateQuickButtonsByMessage(message);
+            }
+          });
+        }
+      }
+      
+      // Handling quick button clicks
+      function handleQuickButtonClick(buttonText) {
+        userInput.value = buttonText;
+        sendMessage();
+      }
+      
+      // Updating initial quick buttons
+      function updateInitialQuickButtons() {
+        updateQuickButtons(["자동차보험 안내", "실손의료보험 안내", "맞춤 추천 받기", "상담사 연결"]);
+      }
+      
+      // Updating quick buttons dynamically
+      function updateQuickButtons(buttons) {
+        quickButtonsContainer.innerHTML = '';
+        buttons.forEach(buttonText => {
+          const button = document.createElement('div');
+          button.className = 'quick-button';
+          button.textContent = buttonText;
+          button.addEventListener('click', function() { handleQuickButtonClick(buttonText); });
+          quickButtonsContainer.appendChild(button);
+        });
+        // Adding "처음으로" button
+        const backButton = document.createElement('div');
+        backButton.className = 'quick-button';
+        backButton.textContent = '처음으로';
+        backButton.addEventListener('click', function() { handleQuickButtonClick('처음으로'); });
+        quickButtonsContainer.appendChild(backButton);
+      }
+      
+      // Updating quick buttons based on user message
+      function updateQuickButtonsByMessage(message) {
+        message = message.toLowerCase();
+        if (message.includes('자동차') || message.includes('차량')) {
+          updateQuickButtons(insuranceProducts["자동차보험"].quickButtons);
+        } else if (message.includes('실손') || message.includes('의료')) {
+          updateQuickButtons(insuranceProducts["실손의료보험"].quickButtons);
+        } else if (message.includes('추천')) {
+          updateQuickButtons(insuranceProducts["추천상품"].quickButtons);
+        } else {
+          updateQuickButtons(["자동차보험 안내", "실손의료보험 안내", "맞춤 추천 받기", "상담사 연결"]);
+        }
+      }
+      
+      // Resetting chat to initial state
+      function resetChat() {
+        chatContainer.innerHTML = '';
+        showTypingIndicator();
+        setTimeout(function() {
+          removeTypingIndicator();
+          addBotMessageWithMascot(`안녕하세요, ${userProfile.name}님! 현대해상 햇살봇입니다. 자동차보험과 실손의료보험을 포함한 맞춤 상담을 시작합니다.`);
+          showTypingIndicator();
+          setTimeout(function() {
+            removeTypingIndicator();
+            const matchedPersona = findMatchingPersona(userProfile);
+            if (userProfile.age >= 20 && userProfile.age < 30) {
+              addBotMessageWithMascot("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
+              if (matchedPersona) {
+                addBotMessageWithMascot(generateRecommendation(matchedPersona));
+              }
+            } else if (userProfile.age >= 30 && userProfile.age < 50) {
+              addBotMessageWithMascot("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
+              if (matchedPersona) {
+                addBotMessageWithMascot(generateRecommendation(matchedPersona));
+              }
+            } else {
+              addBotMessageWithMascot("안전과 건강을 위한 상담을 도와드리겠습니다.");
+            }
+            updateInitialQuickButtons();
+          }, 1500);
+        }, 1500);
+      }
+      
+      // Displaying product information
+      function showProductInfo(category) {
+        if (insuranceProducts[category]) {
+          addBotMessageWithMascot(`${insuranceProducts[category].description}`);
+          setTimeout(() => {
+            addBotMessageWithMascot(`관심 있는 ${category}의 세부 상품은 ${insuranceProducts[category].subCategories.join(', ')}입니다.`);
+            updateQuickButtons(insuranceProducts[category].quickButtons);
+          }, 1000);
+        }
+      }
+      
+      // Showing typing indicator
+      function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message-group typing-group';
+        typingDiv.innerHTML = `
+          <div class="mascot"></div>
+          <div class="typing-indicator">
+            <span></span><span></span><span></span>
+          </div>`;
+        chatContainer.appendChild(typingDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+      
+      // Removing typing indicator
+      function removeTypingIndicator() {
+        const typingGroup = document.querySelector('.typing-group');
+        if (typingGroup) typingGroup.remove();
+      }
+      
+      // Adding bot message with mascot
+      function addBotMessageWithMascot(message) {
+        const messageGroup = document.createElement('div');
+        messageGroup.className = 'message-group';
+        messageGroup.innerHTML = `
+          <div class="mascot"></div>
+          <div class="message bot-message">${message}</div>`;
+        chatContainer.appendChild(messageGroup);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+      
+      // Adding user message
+      function addUserMessage(message) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message user-message';
+        messageElement.textContent = message;
+        chatContainer.appendChild(messageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    });
+  </script>
 </body>
 </html>
