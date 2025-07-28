@@ -720,7 +720,6 @@
     
     // Mock function to simulate file loading
     function loadFileData(fileName) {
-      // Placeholder for Google Apps Script DriveApp access
       return "ID,페르소나명,연령대,성별,직업,거주지,차량 정보,운전 경력,가족 구성,현재 가입 상품 (현대해상),주요 특약 (현대해상 다이렉트 기준),월 평균 보험료 (추정),주요 주행 패턴,운전 습관,정보 탐색 채널,핵심 니즈,페인 포인트,현대해상 다이렉트 선호 이유/기대\n1,김지영,30대,여성,사무직,서울,소형 SUV,5년,2인 가족,자동차보험,대인배상/대물배상,5만원,도심 주행,안전운전,온라인,합리적인 보험료,복잡한 가입 절차,간편한 온라인 가입";
     }
     
@@ -823,22 +822,6 @@
     
     // Initializing event listeners
     document.addEventListener('DOMContentLoaded', function() {
-      // Check if running in Google Apps Script environment
-      if (!isGoogleScriptAvailable()) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = '오류: 이 애플리케이션은 Google Apps Script 환경에서 실행해야 합니다. Google Apps Script에서 배포된 웹 앱을 통해 접근해주세요.';
-        document.querySelector('.container').prepend(errorDiv);
-        return;
-      }
-      
-      // Loading persona data on page load
-      loadPersonaData();
-      
-      // Load chat history
-      const chatHistory = loadChatHistory();
-      chatHistory.forEach(msg => appendMessage(msg.text, msg.type));
-      
       const startButton = document.getElementById('start-button');
       const submitProfileButton = document.getElementById('submit-profile');
       const sendButton = document.getElementById('send-button');
@@ -851,11 +834,27 @@
       const categoryButtons = document.querySelectorAll('.category-button');
       const feedbackButton = document.getElementById('feedback-button');
       
+      // Load persona data and chat history regardless of Google Apps Script environment
+      loadPersonaData();
+      const chatHistory = loadChatHistory();
+      chatHistory.forEach(msg => appendMessage(msg.text, msg.type));
+      
       // Handling start button click
       startButton.addEventListener('click', function() {
+        console.log('Start button clicked'); // Debug log
         welcomeScreen.classList.add('hidden');
         profileScreen.classList.remove('hidden');
         document.getElementById('name').focus();
+      });
+      
+      // Add keyboard support for start button
+      startButton.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          console.log('Start button activated via keyboard'); // Debug log
+          welcomeScreen.classList.add('hidden');
+          profileScreen.classList.remove('hidden');
+          document.getElementById('name').focus();
+        }
       });
       
       // Handling profile submission
@@ -869,6 +868,38 @@
         userProfile.income = parseInt(document.getElementById('income').value) || 0;
         userProfile.insuranceExperience = document.getElementById('insurance-experience').value || "미입력";
         userProfile.interest = document.getElementById('interest').value || "미정/상담필요";
+        
+        // Simulate Google Apps Script save (mock for non-GAS environment)
+        if (!isGoogleScriptAvailable()) {
+          console.warn('Google Apps Script not detected, simulating profile save');
+          profileScreen.classList.add('hidden');
+          chatScreen.classList.remove('hidden');
+          showTypingIndicator();
+          setTimeout(function() {
+            removeTypingIndicator();
+            addBotMessage(`안녕하세요, ${userProfile.name}님! 현대해상 하이케어(Hi-Care) 봇입니다. 자동차보험과 실손의료보험을 포함한 맞춤 상담을 시작합니다. 😊`);
+            showTypingIndicator();
+            setTimeout(function() {
+              removeTypingIndicator();
+              const matchedPersona = findMatchingPersona(userProfile);
+              if (userProfile.age >= 20 && userProfile.age < 30) {
+                addBotMessage("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
+                if (matchedPersona) {
+                  addBotMessage(generateRecommendation(matchedPersona));
+                }
+              } else if (userProfile.age >= 30 && userProfile.age < 50) {
+                addBotMessage("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
+                if (matchedPersona) {
+                  addBotMessage(generateRecommendation(matchedPersona));
+                }
+              } else {
+                addBotMessage("안전과 건강을 위한 상담을 도와드리겠습니다.");
+              }
+              updateInitialQuickButtons();
+            }, Math.random() * 1000 + 1000);
+          }, Math.random() * 1000 + 1000);
+          return;
+        }
         
         google.script.run.withSuccessHandler(function(result) {
           if (result && result.success) {
@@ -952,6 +983,12 @@
           userInput.value = '';
           document.getElementById('autocomplete-suggestions').style.display = 'none';
           showTypingIndicator();
+          if (!isGoogleScriptAvailable()) {
+            removeTypingIndicator();
+            addBotMessage("Google Apps Script 환경이 필요합니다. 현재는 테스트 모드입니다.");
+            updateQuickButtonsByMessage(message);
+            return;
+          }
           google.script.run.withSuccessHandler(function(reply) {
             removeTypingIndicator();
             addBotMessage(reply);
@@ -1113,6 +1150,11 @@
         if (type === 'user') {
           saveChatHistory([...loadChatHistory(), { text, type }]);
         }
+      }
+      
+      // Warn about Google Apps Script if not available
+      if (!isGoogleScriptAvailable()) {
+        console.warn('Google Apps Script environment not detected. Some features may be limited.');
       }
     });
   </script>
