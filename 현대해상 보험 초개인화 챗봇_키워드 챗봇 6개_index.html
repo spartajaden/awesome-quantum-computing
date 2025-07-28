@@ -6,23 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>현대해상 하이케어봇</title>
   <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Pretendard:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Noto Sans KR', sans-serif;
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: #f5f5f5;
+      padding: 20px;
+      background-color: #F9FAFB;
       color: #333;
     }
     
     .container {
-      max-width: 500px;
+      max-width: 600px;
       margin: 0 auto;
       padding: 20px;
       background-color: #fff;
-      border-radius: 10px;
+      border-radius: 12px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-top: 20px;
     }
     
     .header {
@@ -37,7 +37,7 @@
     }
     
     .header h1 {
-      color: #0066b3;
+      color: #005BAC;
       margin: 0;
       font-size: 24px;
     }
@@ -47,52 +47,108 @@
       overflow-y: auto;
       padding: 10px;
       margin: 20px 0;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
     
     .message {
-      margin-bottom: 6px; /* Reduced from 10px */
-      padding: 6px 12px; /* Reduced from 8px 15px */
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    
+    .message.bot {
+      flex-direction: row;
+    }
+    
+    .message.user {
+      flex-direction: row-reverse;
+    }
+    
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .bubble {
+      padding: 10px 14px;
       border-radius: 18px;
-      max-width: 80%;
+      max-width: 70%;
+      line-height: 1.4;
+      position: relative;
       word-wrap: break-word;
-      line-height: 1.2; /* Added to reduce text line spacing */
     }
     
-    .bot-message {
-      background-color: #e6f2ff;
-      float: left;
-      clear: both;
+    .bubble.bot {
+      background-color: #e1f5fe;
+      color: #003c8f;
+      text-align: left;
     }
     
-    .user-message {
-      background-color: #0066b3;
-      color: white;
-      float: right;
-      clear: both;
+    .bubble.user {
+      background-color: #c8e6c9;
+      color: #1b5e20;
+      text-align: right;
+      margin-left: auto;
+    }
+    
+    .bubble.bot::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: -8px;
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 8px solid #e1f5fe;
+    }
+    
+    .bubble.user::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      right: -8px;
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-left: 8px solid #c8e6c9;
     }
     
     .input-area {
       display: flex;
       margin-top: 20px;
+      justify-content: center;
+      position: relative;
     }
     
     #user-input {
       flex: 1;
+      max-width: 85%;
       padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
       outline: none;
     }
     
+    #user-input:focus {
+      border-color: #005BAC;
+      box-shadow: 0 0 5px rgba(0, 91, 172, 0.3);
+    }
+    
     button {
-      background-color: #0066b3;
+      background-color: #005BAC;
       color: white;
       border: none;
       padding: 10px 20px;
       margin-left: 10px;
-      border-radius: 20px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
     }
@@ -101,10 +157,15 @@
       background-color: #004d8c;
     }
     
+    button:focus {
+      outline: 2px solid #005BAC;
+      outline-offset: 2px;
+    }
+    
     .profile-form {
       margin-top: 20px;
       padding: 15px;
-      border: 1px solid #ddd;
+      border: 1px solid #E5E7EB;
       border-radius: 8px;
     }
     
@@ -121,8 +182,20 @@
     .form-group input, .form-group select {
       width: 100%;
       padding: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid #E5E7EB;
       border-radius: 4px;
+    }
+    
+    .form-group input:focus, .form-group select:focus {
+      border-color: #005BAC;
+      outline: none;
+    }
+    
+    .form-error {
+      color: #D32F2F;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
     }
     
     .welcome-screen {
@@ -136,7 +209,7 @@
     }
     
     .welcome-screen h2 {
-      color: #0066b3;
+      color: #005BAC;
       margin-bottom: 20px;
     }
     
@@ -146,7 +219,7 @@
     }
     
     .start-button {
-      background-color: #0066b3;
+      background-color: #005BAC;
       color: white;
       border: none;
       padding: 12px 30px;
@@ -160,6 +233,11 @@
       background-color: #004d8c;
     }
     
+    .start-button:focus {
+      outline: 2px solid #005BAC;
+      outline-offset: 2px;
+    }
+    
     .hidden {
       display: none;
     }
@@ -169,12 +247,13 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 15px;
+      justify-content: center;
     }
     
     .quick-button {
-      background-color: #f0f8ff;
-      border: 1px solid #0066b3;
-      color: #0066b3;
+      background-color: #F0F8FF;
+      border: 1px solid #005BAC;
+      color: #005BAC;
       padding: 8px 15px;
       border-radius: 20px;
       cursor: pointer;
@@ -183,8 +262,13 @@
     }
     
     .quick-button:hover {
-      background-color: #0066b3;
+      background-color: #005BAC;
       color: white;
+    }
+    
+    .quick-button:focus {
+      outline: 2px solid #005BAC;
+      outline-offset: 2px;
     }
     
     .category-buttons {
@@ -196,7 +280,7 @@
     
     .category-button {
       background-color: #fff;
-      border: 1px solid #ddd;
+      border: 1px solid #E5E7EB;
       border-radius: 10px;
       padding: 15px 10px;
       text-align: center;
@@ -208,8 +292,13 @@
     }
     
     .category-button:hover {
-      border-color: #0066b3;
-      box-shadow: 0 2px 8px rgba(0, 102, 179, 0.2);
+      border-color: #005BAC;
+      box-shadow: 0 2px 8px rgba(0, 91, 172, 0.2);
+    }
+    
+    .category-button:focus {
+      outline: 2px solid #005BAC;
+      outline-offset: 2px;
     }
     
     .category-icon {
@@ -232,34 +321,18 @@
       color: #666;
     }
     
-    .mascot {
-      width: 50px;
-      height: 50px;
-      margin-right: 10px;
-      background-image: url('https://www.hi.co.kr/images/main/character.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      float: left;
-    }
-    
-    .message-group {
-      clear: both;
-      overflow: hidden;
-      margin-bottom: 8px; /* Reduced from 15px */
-    }
-    
     .typing-indicator {
       display: inline-block;
       padding: 8px 15px;
-      background-color: #e6f2ff;
-      border-radius: 18px;
+      background-color: #e1f5fe;
+      border-radius: 12px;
     }
     
     .typing-indicator span {
       display: inline-block;
       width: 8px;
       height: 8px;
-      background-color: #0066b3;
+      background-color: #005BAC;
       border-radius: 50%;
       animation: typing 1s infinite;
       margin: 0 2px;
@@ -284,22 +357,81 @@
       text-align: center;
       margin-top: 10px;
     }
+    
+    .error-message {
+      color: #D32F2F;
+      text-align: center;
+      margin: 10px 0;
+    }
+    
+    .loading-indicator {
+      text-align: center;
+      margin: 10px 0;
+      color: #005BAC;
+      font-size: 14px;
+    }
+    
+    .autocomplete-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+    
+    .autocomplete-suggestion {
+      padding: 10px;
+      cursor: pointer;
+      color: #333;
+    }
+    
+    .autocomplete-suggestion:hover {
+      background-color: #F0F8FF;
+    }
+    
+    .feedback-button {
+      background-color: #F0F8FF;
+      border: 1px solid #005BAC;
+      color: #005BAC;
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+      display: inline-block;
+    }
+    
+    .feedback-button:hover {
+      background-color: #005BAC;
+      color: white;
+    }
+    
+    .feedback-button:focus {
+      outline: 2px solid #005BAC;
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <!-- 시작 화면 -->
     <div id="welcome-screen" class="welcome-screen">
-      <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
+      <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고" role="img" aria-label="현대해상 로고">
       <h2>현대해상 하이케어(Hi-Care) 봇</h2>
       <p>고객님의 상황에 맞는 맞춤형 보험 상담을 도와드립니다.</p>
-      <button id="start-button" class="start-button">상담 시작하기</button>
+      <button id="start-button" class="start-button" role="button" aria-label="상담 시작하기">상담 시작하기</button>
     </div>
     
     <!-- 프로필 입력 화면 -->
-    <div id="profile-screen" class="hidden">
+    <div id="profile-screen" class="hidden" role="form" aria-label="고객 정보 입력 폼">
       <div class="header">
-        <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
+        <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고" role="img" aria-label="현대해상 로고">
         <h1>하이케어(Hi-Care)봇과 함께하는 맞춤형 상담</h1>
       </div>
       
@@ -309,26 +441,29 @@
         
         <div class="form-group">
           <label for="name">이름</label>
-          <input type="text" id="name" placeholder="이름을 입력하세요">
+          <input type="text" id="name" placeholder="이름을 입력하세요" aria-required="true">
+          <div id="name-error" class="form-error">이름을 입력해주세요 (2~50자).</div>
         </div>
         
         <div class="form-group">
           <label for="gender">성별</label>
-          <select id="gender">
+          <select id="gender" aria-required="true">
             <option value="">선택하세요</option>
             <option value="남성">남성</option>
             <option value="여성">여성</option>
           </select>
+          <div id="gender-error" class="form-error">성별을 선택해주세요.</div>
         </div>
         
         <div class="form-group">
           <label for="age">연령</label>
-          <input type="number" id="age" placeholder="나이를 입력하세요">
+          <input type="number" id="age" placeholder="나이를 입력하세요" min="18" max="100" aria-required="true">
+          <div id="age-error" class="form-error">18세 이상 100세 이하의 나이를 입력해주세요.</div>
         </div>
         
         <div class="form-group">
           <label for="occupation">직업</label>
-          <select id="occupation">
+          <select id="occupation" aria-required="true">
             <option value="">선택하세요</option>
             <option value="사무직">사무직</option>
             <option value="전문직">전문직</option>
@@ -336,6 +471,7 @@
             <option value="학생">학생</option>
             <option value="기타">기타</option>
           </select>
+          <div id="occupation-error" class="form-error">직업을 선택해주세요.</div>
         </div>
         
         <div class="form-group">
@@ -370,49 +506,50 @@
           </select>
         </div>
         
-        <button id="submit-profile">상담 시작하기</button>
+        <button id="submit-profile" role="button" aria-label="상담 시작하기">상담 시작하기</button>
       </div>
     </div>
     
     <!-- 챗봇 화면 -->
-    <div id="chat-screen" class="hidden">
+    <div id="chat-screen" class="hidden" role="region" aria-label="챗봇 대화 화면">
       <div class="header">
-        <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고">
+        <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고" role="img" aria-label="현대해상 로고">
         <h1>하이케어(Hi-Care) 봇</h1>
       </div>
       
-      <div id="chat-container" class="chat-container">
+      <div id="chat-container" class="chat-container" role="log" aria-live="polite">
         <!-- 메시지가 여기에 동적으로 추가됩니다 -->
+        <div id="loading-indicator" class="loading-indicator hidden">데이터를 불러오는 중입니다...</div>
       </div>
       
       <!-- 카테고리 버튼 영역 -->
-      <div id="category-buttons" class="category-buttons">
-        <div class="category-button" data-category="자동차보험">
+      <div id="category-buttons" class="category-buttons" role="navigation" aria-label="보험 카테고리 선택">
+        <div class="category-button" data-category="자동차보험" role="button" tabindex="0" aria-label="자동차보험: 자동차/이륜차/운전자">
           <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_car.png');"></div>
           <div class="category-title">자동차보험</div>
           <div class="category-desc">자동차/이륜차/운전자</div>
         </div>
-        <div class="category-button" data-category="실손의료보험">
+        <div class="category-button" data-category="실손의료보험" role="button" tabindex="0" aria-label="실손의료보험: 실손/건강">
           <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_health.png');"></div>
           <div class="category-title">실손의료보험</div>
           <div class="category-desc">실손/건강</div>
         </div>
-        <div class="category-button" data-category="상담예약">
+        <div class="category-button" data-category="상담예약" role="button" tabindex="0" aria-label="상담예약: 전화/화상 상담">
           <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_consult.png');"></div>
           <div class="category-title">상담예약</div>
           <div class="category-desc">전화/화상 상담</div>
         </div>
-        <div class="category-button" data-category="보험료계산">
+        <div class="category-button" data-category="보험료계산" role="button" tabindex="0" aria-label="보험료계산: 견적 확인">
           <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_calculate.png');"></div>
           <div class="category-title">보험료계산</div>
           <div class="category-desc">견적 확인</div>
         </div>
-        <div class="category-button" data-category="추천상품">
+        <div class="category-button" data-category="추천상품" role="button" tabindex="0" aria-label="추천상품: 맞춤 추천">
           <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_recommend.png');"></div>
           <div class="category-title">추천상품</div>
           <div class="category-desc">맞춤 추천</div>
         </div>
-        <div class="category-button" data-category="지점안내">
+        <div class="category-button" data-category="지점안내" role="button" tabindex="0" aria-label="지점안내: 최근 지점">
           <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_location.png');"></div>
           <div class="category-title">지점안내</div>
           <div class="category-desc">최근 지점</div>
@@ -420,14 +557,17 @@
       </div>
       
       <!-- 퀵버튼 영역 -->
-      <div id="quick-buttons" class="quick-buttons">
+      <div id="quick-buttons" class="quick-buttons" role="navigation" aria-label="빠른 응답 버튼">
         <!-- 퀵버튼은 동적으로 추가됩니다 -->
       </div>
       
       <div class="input-area">
-        <input type="text" id="user-input" placeholder="메시지를 입력하세요...">
-        <button id="send-button">전송</button>
+        <input type="text" id="user-input" placeholder="메시지를 입력하세요..." role="textbox" aria-label="메시지 입력" autocomplete="off">
+        <div id="autocomplete-suggestions" class="autocomplete-suggestions"></div>
+        <button id="send-button" role="button" aria-label="메시지 보내기">보내기</button>
       </div>
+      
+      <button id="feedback-button" class="feedback-button" role="button" aria-label="피드백 제공">피드백 제공</button>
     </div>
     
     <div id="disclaimer">법적 구속력 없는 정보로, 상담원 확인 권장</div>
@@ -482,8 +622,22 @@
     // Storing persona data
     let personaData = [];
     
+    // Autocomplete suggestions
+    const autocompleteSuggestions = [
+      "자동차보험 견적",
+      "실손보험 안내",
+      "맞춤 추천 받기",
+      "상담사 연결",
+      "보험료 계산",
+      "지점 위치",
+      "운전자보험 상담",
+      "건강보험 상담"
+    ];
+    
     // Loading and parsing persona CSV
     function loadPersonaData() {
+      const loadingIndicator = document.getElementById('loading-indicator');
+      loadingIndicator.classList.remove('hidden');
       Papa.parse(loadFileData("고객페르소나.csv"), {
         header: true,
         skipEmptyLines: true,
@@ -514,8 +668,13 @@
             painPoints: row["페인 포인트"],
             preferenceReason: row["현대해상 다이렉트 선호 이유/기대"]
           }));
+          loadingIndicator.classList.add('hidden');
         },
-        error: err => console.error("CSV parsing error:", err)
+        error: err => {
+          console.error("CSV parsing error:", err);
+          loadingIndicator.classList.add('hidden');
+          addBotMessage("데이터 로딩 중 오류가 발생했습니다. 다시 시도해주세요.");
+        }
       });
     }
     
@@ -559,41 +718,126 @@
 고객님의 운전 패턴(${persona.drivingPattern})과 니즈(${persona.coreNeeds})에 적합하며, ${persona.preferenceReason}을 제공합니다.`;
     }
     
-    // Mock function to simulate saving user profile
-    function saveUserProfile(profile, callback) {
-      setTimeout(() => {
-        callback({ success: true });
-      }, 500);
+    // Mock function to simulate file loading
+    function loadFileData(fileName) {
+      // Placeholder for Google Apps Script DriveApp access
+      return "ID,페르소나명,연령대,성별,직업,거주지,차량 정보,운전 경력,가족 구성,현재 가입 상품 (현대해상),주요 특약 (현대해상 다이렉트 기준),월 평균 보험료 (추정),주요 주행 패턴,운전 습관,정보 탐색 채널,핵심 니즈,페인 포인트,현대해상 다이렉트 선호 이유/기대\n1,김지영,30대,여성,사무직,서울,소형 SUV,5년,2인 가족,자동차보험,대인배상/대물배상,5만원,도심 주행,안전운전,온라인,합리적인 보험료,복잡한 가입 절차,간편한 온라인 가입";
     }
     
-    // Processing user input with persona-based recommendation
-    function processUserInput(message, profile, callback) {
-      let response = "문의하신 내용을 처리 중입니다. 자세한 상담을 원하시면 카테고리를 선택해주세요.";
-      const matchedPersona = findMatchingPersona(profile);
+    // Check for Google Apps Script environment
+    function isGoogleScriptAvailable() {
+      return typeof google !== 'undefined' && google.script && google.script.run;
+    }
+    
+    // Save chat history to localStorage
+    function saveChatHistory(messages) {
+      localStorage.setItem('hicareBotChat', JSON.stringify(messages));
+    }
+    
+    // Load chat history from localStorage
+    function loadChatHistory() {
+      const saved = localStorage.getItem('hicareBotChat');
+      return saved ? JSON.parse(saved) : [];
+    }
+    
+    // Validate profile form
+    function validateProfileForm() {
+      let isValid = true;
+      const name = document.getElementById('name').value.trim();
+      const gender = document.getElementById('gender').value;
+      const age = parseInt(document.getElementById('age').value);
+      const occupation = document.getElementById('occupation').value;
       
-      if (message.toLowerCase().includes('자동차')) {
-        if (matchedPersona && matchedPersona.currentProduct.includes("자동차보험")) {
-          response = generateRecommendation(matchedPersona);
-        } else {
-          response = "자동차보험에 대해 궁금하신 점이 있으시군요! 자세한 정보를 원하시면 퀵버튼을 선택해주세요.";
-        }
-      } else if (message.toLowerCase().includes('실손') || message.toLowerCase().includes('의료')) {
-        response = "실손의료보험에 대해 안내드립니다. 추가 정보를 위해 퀵버튼을 확인해주세요.";
-      } else if (message.toLowerCase().includes('추천')) {
-        response = matchedPersona ? generateRecommendation(matchedPersona) : "맞춤 추천을 위해 더 자세한 정보를 입력해 주세요.";
-      } else if (message === "처음으로") {
-        response = "대화를 처음으로 되돌립니다.";
+      const nameError = document.getElementById('name-error');
+      const genderError = document.getElementById('gender-error');
+      const ageError = document.getElementById('age-error');
+      const occupationError = document.getElementById('occupation-error');
+      
+      nameError.style.display = 'none';
+      genderError.style.display = 'none';
+      ageError.style.display = 'none';
+      occupationError.style.display = 'none';
+      
+      if (!name || name.length < 2 || name.length > 50) {
+        nameError.style.display = 'block';
+        isValid = false;
       }
       
-      setTimeout(() => {
-        callback(response);
-      }, 500);
+      if (!gender) {
+        genderError.style.display = 'block';
+        isValid = false;
+      }
+      
+      if (isNaN(age) || age < 18 || age > 100) {
+        ageError.style.display = 'block';
+        isValid = false;
+      }
+      
+      if (!occupation) {
+        occupationError.style.display = 'block';
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+    
+    // Show autocomplete suggestions
+    function showAutocompleteSuggestions(input) {
+      const suggestionsContainer = document.getElementById('autocomplete-suggestions');
+      suggestionsContainer.innerHTML = '';
+      if (!input) {
+        suggestionsContainer.style.display = 'none';
+        return;
+      }
+      
+      const filteredSuggestions = autocompleteSuggestions.filter(s =>
+        s.toLowerCase().includes(input.toLowerCase())
+      );
+      
+      if (filteredSuggestions.length > 0) {
+        filteredSuggestions.forEach(suggestion => {
+          const div = document.createElement('div');
+          div.className = 'autocomplete-suggestion';
+          div.textContent = suggestion;
+          div.setAttribute('role', 'option');
+          div.setAttribute('tabindex', '0');
+          div.addEventListener('click', () => {
+            document.getElementById('user-input').value = suggestion;
+            suggestionsContainer.style.display = 'none';
+            sendMessage();
+          });
+          div.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+              document.getElementById('user-input').value = suggestion;
+              suggestionsContainer.style.display = 'none';
+              sendMessage();
+            }
+          });
+          suggestionsContainer.appendChild(div);
+        });
+        suggestionsContainer.style.display = 'block';
+      } else {
+        suggestionsContainer.style.display = 'none';
+      }
     }
     
     // Initializing event listeners
     document.addEventListener('DOMContentLoaded', function() {
+      // Check if running in Google Apps Script environment
+      if (!isGoogleScriptAvailable()) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = '오류: 이 애플리케이션은 Google Apps Script 환경에서 실행해야 합니다. Google Apps Script에서 배포된 웹 앱을 통해 접근해주세요.';
+        document.querySelector('.container').prepend(errorDiv);
+        return;
+      }
+      
       // Loading persona data on page load
       loadPersonaData();
+      
+      // Load chat history
+      const chatHistory = loadChatHistory();
+      chatHistory.forEach(msg => appendMessage(msg.text, msg.type));
       
       const startButton = document.getElementById('start-button');
       const submitProfileButton = document.getElementById('submit-profile');
@@ -605,15 +849,19 @@
       const chatContainer = document.getElementById('chat-container');
       const quickButtonsContainer = document.getElementById('quick-buttons');
       const categoryButtons = document.querySelectorAll('.category-button');
+      const feedbackButton = document.getElementById('feedback-button');
       
       // Handling start button click
       startButton.addEventListener('click', function() {
         welcomeScreen.classList.add('hidden');
         profileScreen.classList.remove('hidden');
+        document.getElementById('name').focus();
       });
       
       // Handling profile submission
       submitProfileButton.addEventListener('click', function() {
+        if (!validateProfileForm()) return;
+        
         userProfile.name = document.getElementById('name').value || "고객";
         userProfile.gender = document.getElementById('gender').value || "미입력";
         userProfile.age = parseInt(document.getElementById('age').value) || 30;
@@ -622,36 +870,40 @@
         userProfile.insuranceExperience = document.getElementById('insurance-experience').value || "미입력";
         userProfile.interest = document.getElementById('interest').value || "미정/상담필요";
         
-        saveUserProfile(userProfile, function(result) {
+        google.script.run.withSuccessHandler(function(result) {
           if (result && result.success) {
             profileScreen.classList.add('hidden');
             chatScreen.classList.remove('hidden');
             showTypingIndicator();
             setTimeout(function() {
               removeTypingIndicator();
-              addBotMessageWithMascot(`안녕하세요, ${userProfile.name}님! 현대해상 하이케어(Hi-Care) 봇입니다. 자동차보험과 실손의료보험을 포함한 맞춤 상담을 시작합니다.`);
+              addBotMessage(`안녕하세요, ${userProfile.name}님! 현대해상 하이케어(Hi-Care) 봇입니다. 자동차보험과 실손의료보험을 포함한 맞춤 상담을 시작합니다. 😊`);
               showTypingIndicator();
               setTimeout(function() {
                 removeTypingIndicator();
                 const matchedPersona = findMatchingPersona(userProfile);
                 if (userProfile.age >= 20 && userProfile.age < 30) {
-                  addBotMessageWithMascot("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
+                  addBotMessage("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
                   if (matchedPersona) {
-                    addBotMessageWithMascot(generateRecommendation(matchedPersona));
+                    addBotMessage(generateRecommendation(matchedPersona));
                   }
                 } else if (userProfile.age >= 30 && userProfile.age < 50) {
-                  addBotMessageWithMascot("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
+                  addBotMessage("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
                   if (matchedPersona) {
-                    addBotMessageWithMascot(generateRecommendation(matchedPersona));
+                    addBotMessage(generateRecommendation(matchedPersona));
                   }
                 } else {
-                  addBotMessageWithMascot("안전과 건강을 위한 상담을 도와드리겠습니다.");
+                  addBotMessage("안전과 건강을 위한 상담을 도와드리겠습니다.");
                 }
                 updateInitialQuickButtons();
-              }, 1500);
-            }, 1500);
+              }, Math.random() * 1000 + 1000);
+            }, Math.random() * 1000 + 1000);
+          } else {
+            addBotMessage("프로필 저장에 실패했습니다. 다시 시도해주세요.");
           }
-        });
+        }).withFailureHandler(function(error) {
+          addBotMessage("오류가 발생했습니다: " + error.message);
+        }).saveUserProfile(userProfile);
       });
       
       // Handling category button clicks
@@ -659,6 +911,12 @@
         button.addEventListener('click', function() {
           const category = this.getAttribute('data-category');
           showProductInfo(category);
+        });
+        button.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            const category = this.getAttribute('data-category');
+            showProductInfo(category);
+          }
         });
       });
       
@@ -668,22 +926,44 @@
         if (e.key === 'Enter') sendMessage();
       });
       
+      // Autocomplete for user input
+      userInput.addEventListener('input', function() {
+        showAutocompleteSuggestions(this.value);
+      });
+      
+      // Hide autocomplete on blur
+      userInput.addEventListener('blur', function() {
+        setTimeout(() => {
+          document.getElementById('autocomplete-suggestions').style.display = 'none';
+        }, 200);
+      });
+      
+      // Handling feedback button
+      feedbackButton.addEventListener('click', function() {
+        addBotMessage("피드백을 주셔서 감사합니다! 상담이 도움이 되었는지 알려주세요.");
+        updateQuickButtons(["매우 만족", "만족", "보통", "불만족"]);
+      });
+      
       // Sending user message
       function sendMessage() {
         const message = userInput.value.trim();
         if (message) {
-          addUserMessage(message);
+          appendMessage(message, "user");
           userInput.value = '';
+          document.getElementById('autocomplete-suggestions').style.display = 'none';
           showTypingIndicator();
-          processUserInput(message, userProfile, function(response) {
+          google.script.run.withSuccessHandler(function(reply) {
             removeTypingIndicator();
-            addBotMessageWithMascot(response);
+            addBotMessage(reply);
             if (message === "처음으로") {
               resetChat();
             } else {
               updateQuickButtonsByMessage(message);
             }
-          });
+          }).withFailureHandler(function(error) {
+            removeTypingIndicator();
+            addBotMessage("오류가 발생했습니다: " + error.message);
+          }).processUserInput(message, userProfile);
         }
       }
       
@@ -695,7 +975,13 @@
       
       // Updating initial quick buttons
       function updateInitialQuickButtons() {
-        updateQuickButtons(["자동차보험 안내", "실손의료보험 안내", "맞춤 추천 받기", "상담사 연결"]);
+        const personalizedButtons = ["자동차보험 안내", "실손의료보험 안내", "맞춤 추천 받기", "상담사 연결"];
+        if (userProfile.interest === "자동차보험") {
+          personalizedButtons.unshift("자동차보험 견적");
+        } else if (userProfile.interest === "실손보험") {
+          personalizedButtons.unshift("실손보험 안내");
+        }
+        updateQuickButtons(personalizedButtons);
       }
       
       // Updating quick buttons dynamically
@@ -705,14 +991,24 @@
           const button = document.createElement('div');
           button.className = 'quick-button';
           button.textContent = buttonText;
+          button.setAttribute('role', 'button');
+          button.setAttribute('tabindex', '0');
           button.addEventListener('click', function() { handleQuickButtonClick(buttonText); });
+          button.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleQuickButtonClick(buttonText);
+          });
           quickButtonsContainer.appendChild(button);
         });
         // Adding "처음으로" button
         const backButton = document.createElement('div');
         backButton.className = 'quick-button';
         backButton.textContent = '처음으로';
+        backButton.setAttribute('role', 'button');
+        backButton.setAttribute('tabindex', '0');
         backButton.addEventListener('click', function() { handleQuickButtonClick('처음으로'); });
+        backButton.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') handleQuickButtonClick('처음으로');
+        });
         quickButtonsContainer.appendChild(backButton);
       }
       
@@ -725,57 +1021,61 @@
           updateQuickButtons(insuranceProducts["실손의료보험"].quickButtons);
         } else if (message.includes('추천')) {
           updateQuickButtons(insuranceProducts["추천상품"].quickButtons);
-        } else {
+        } else if (message.includes('만족') || message.includes('불만족')) {
           updateQuickButtons(["자동차보험 안내", "실손의료보험 안내", "맞춤 추천 받기", "상담사 연결"]);
+          addBotMessage("피드백이 저장되었습니다. 추가로 도와드릴까요?");
+        } else {
+          updateInitialQuickButtons();
         }
       }
       
       // Resetting chat to initial state
       function resetChat() {
-        chatContainer.innerHTML = '';
+        chatContainer.innerHTML = '<div id="loading-indicator" class="loading-indicator hidden">데이터를 불러오는 중입니다...</div>';
+        saveChatHistory([]);
         showTypingIndicator();
         setTimeout(function() {
           removeTypingIndicator();
-          addBotMessageWithMascot(`안녕하세요, ${userProfile.name}님! 현대해상 하이케어(Hi-Care)봇 입니다. 자동차보험과 실손의료보험을 포함한 맞춤 상담을 시작합니다.`);
+          addBotMessage(`안녕하세요, ${userProfile.name}님! 현대해상 하이케어(Hi-Care) 봇입니다. 자동차보험과 실손의료보험을 포함한 맞춤 상담을 시작합니다. 😊`);
           showTypingIndicator();
           setTimeout(function() {
             removeTypingIndicator();
             const matchedPersona = findMatchingPersona(userProfile);
             if (userProfile.age >= 20 && userProfile.age < 30) {
-              addBotMessageWithMascot("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
+              addBotMessage("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
               if (matchedPersona) {
-                addBotMessageWithMascot(generateRecommendation(matchedPersona));
+                addBotMessage(generateRecommendation(matchedPersona));
               }
             } else if (userProfile.age >= 30 && userProfile.age < 50) {
-              addBotMessageWithMascot("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
+              addBotMessage("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
               if (matchedPersona) {
-                addBotMessageWithMascot(generateRecommendation(matchedPersona));
+                addBotMessage(generateRecommendation(matchedPersona));
               }
             } else {
-              addBotMessageWithMascot("안전과 건강을 위한 상담을 도와드리겠습니다.");
+              addBotMessage("안전과 건강을 위한 상담을 도와드리겠습니다.");
             }
             updateInitialQuickButtons();
-          }, 1500);
-        }, 1500);
+          }, Math.random() * 1000 + 1000);
+        }, Math.random() * 1000 + 1000);
       }
       
       // Displaying product information
       function showProductInfo(category) {
         if (insuranceProducts[category]) {
-          addBotMessageWithMascot(`${insuranceProducts[category].description}`);
+          addBotMessage(`${insuranceProducts[category].description}`);
           setTimeout(() => {
-            addBotMessageWithMascot(`관심 있는 ${category}의 세부 상품은 ${insuranceProducts[category].subCategories.join(', ')}입니다.`);
+            addBotMessage(`관심 있는 ${category}의 세부 상품은 ${insuranceProducts[category].subCategories.join(', ')}입니다.`);
             updateQuickButtons(insuranceProducts[category].quickButtons);
-          }, 1000);
+          }, Math.random() * 500 + 500);
         }
       }
       
       // Showing typing indicator
       function showTypingIndicator() {
         const typingDiv = document.createElement('div');
-        typingDiv.className = 'message-group typing-group';
+        typingDiv.className = 'message bot typing-group';
         typingDiv.innerHTML = `
-          <div class="mascot"></div>
+          <img src="https://i.ibb.co/D1cNQ2j/hicarebot-avatar.png" alt="bot" class="avatar" role="img" aria-label="봇 아바타">
           <div class="typing-indicator">
             <span></span><span></span><span></span>
           </div>`;
@@ -789,24 +1089,30 @@
         if (typingGroup) typingGroup.remove();
       }
       
-      // Adding bot message with mascot
-      function addBotMessageWithMascot(message) {
-        const messageGroup = document.createElement('div');
-        messageGroup.className = 'message-group';
-        messageGroup.innerHTML = `
-          <div class="mascot"></div>
-          <div class="message bot-message">${message}</div>`;
-        chatContainer.appendChild(messageGroup);
+      // Adding bot message
+      function addBotMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot';
+        messageDiv.innerHTML = `
+          <img src="https://i.ibb.co/D1cNQ2j/hicarebot-avatar.png" alt="bot" class="avatar" role="img" aria-label="봇 아바타">
+          <div class="bubble bot">${message}</div>`;
+        chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
+        saveChatHistory([...loadChatHistory(), { text: message, type: 'bot' }]);
       }
       
       // Adding user message
-      function addUserMessage(message) {
-        const messageElement = document.createElement('div');
-        messageElement.className = 'message user-message';
-        messageElement.textContent = message;
-        chatContainer.appendChild(messageElement);
+      function appendMessage(text, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}`;
+        messageDiv.innerHTML = `
+          <img src="${type === 'bot' ? 'https://i.ibb.co/D1cNQ2j/hicarebot-avatar.png' : 'https://i.ibb.co/JBqtqtT/user-icon.png'}" alt="${type}" class="avatar" role="img" aria-label="${type === 'bot' ? '봇 아바타' : '사용자 아바타'}">
+          <div class="bubble ${type}">${text}</div>`;
+        chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
+        if (type === 'user') {
+          saveChatHistory([...loadChatHistory(), { text, type }]);
+        }
       }
     });
   </script>
