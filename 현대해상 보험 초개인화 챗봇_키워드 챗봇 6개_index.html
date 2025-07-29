@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <base target="_top">
   <meta charset="UTF-8">
@@ -82,6 +82,7 @@
       line-height: 1.4;
       position: relative;
       word-wrap: break-word;
+      animation: fadeIn 0.3s ease-in;
     }
     
     .bubble.bot {
@@ -119,6 +120,13 @@
       border-top: 8px solid transparent;
       border-bottom: 8px solid transparent;
       border-left: 8px solid #c8e6c9;
+    }
+    
+    .message-timestamp {
+      font-size: 10px;
+      color: #666;
+      margin-top: 5px;
+      text-align: right;
     }
     
     .input-area {
@@ -351,6 +359,11 @@
       50% { transform: translateY(-5px); }
     }
     
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
     #disclaimer {
       font-size: 10px;
       color: #666;
@@ -395,32 +408,64 @@
       background-color: #F0F8FF;
     }
     
-    .feedback-button {
+    .feedback-form {
+      margin-top: 15px;
+      padding: 15px;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      display: none;
+    }
+    
+    .feedback-form h3 {
+      margin: 0 0 10px;
+      color: #005BAC;
+    }
+    
+    .feedback-form select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #E5E7EB;
+      border-radius: 4px;
+    }
+    
+    .feedback-form button {
+      background-color: #005BAC;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    .feedback-form button:hover {
+      background-color: #004d8c;
+    }
+    
+    .chat-history-toggle {
+      text-align: center;
+      margin: 10px 0;
+    }
+    
+    .chat-history-toggle button {
       background-color: #F0F8FF;
       border: 1px solid #005BAC;
       color: #005BAC;
       padding: 8px 15px;
       border-radius: 20px;
       cursor: pointer;
-      font-size: 14px;
-      margin-top: 10px;
-      display: inline-block;
     }
     
-    .feedback-button:hover {
+    .chat-history-toggle button:hover {
       background-color: #005BAC;
       color: white;
-    }
-    
-    .feedback-button:focus {
-      outline: 2px solid #005BAC;
-      outline-offset: 2px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 시작 화면 -->
+    <!-- Welcome Screen -->
     <div id="welcome-screen" class="welcome-screen">
       <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고" role="img" aria-label="현대해상 로고">
       <h2>현대해상 하이케어(Hi-Care) 봇</h2>
@@ -428,7 +473,7 @@
       <button id="start-button" class="start-button" role="button" aria-label="상담 시작하기">상담 시작하기</button>
     </div>
     
-    <!-- 프로필 입력 화면 -->
+    <!-- Profile Screen -->
     <div id="profile-screen" class="hidden" role="form" aria-label="고객 정보 입력 폼">
       <div class="header">
         <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고" role="img" aria-label="현대해상 로고">
@@ -510,19 +555,21 @@
       </div>
     </div>
     
-    <!-- 챗봇 화면 -->
+    <!-- Chat Screen -->
     <div id="chat-screen" class="hidden" role="region" aria-label="챗봇 대화 화면">
       <div class="header">
         <img src="https://www.hi.co.kr/images/main/logo.png" alt="현대해상 로고" role="img" aria-label="현대해상 로고">
         <h1>하이케어(Hi-Care) 봇</h1>
       </div>
       
+      <div class="chat-history-toggle">
+        <button id="toggle-history" role="button" aria-label="대화 기록 보기">대화 기록 보기</button>
+      </div>
+      
       <div id="chat-container" class="chat-container" role="log" aria-live="polite">
-        <!-- 메시지가 여기에 동적으로 추가됩니다 -->
         <div id="loading-indicator" class="loading-indicator hidden">데이터를 불러오는 중입니다...</div>
       </div>
       
-      <!-- 카테고리 버튼 영역 -->
       <div id="category-buttons" class="category-buttons" role="navigation" aria-label="보험 카테고리 선택">
         <div class="category-button" data-category="자동차보험" role="button" tabindex="0" aria-label="자동차보험: 자동차/이륜차/운전자">
           <div class="category-icon" style="background-image: url('https://www.hi.co.kr/images/main/icon_car.png');"></div>
@@ -556,10 +603,7 @@
         </div>
       </div>
       
-      <!-- 퀵버튼 영역 -->
-      <div id="quick-buttons" class="quick-buttons" role="navigation" aria-label="빠른 응답 버튼">
-        <!-- 퀵버튼은 동적으로 추가됩니다 -->
-      </div>
+      <div id="quick-buttons" class="quick-buttons" role="navigation" aria-label="빠른 응답 버튼"></div>
       
       <div class="input-area">
         <input type="text" id="user-input" placeholder="메시지를 입력하세요..." role="textbox" aria-label="메시지 입력" autocomplete="off">
@@ -567,15 +611,25 @@
         <button id="send-button" role="button" aria-label="메시지 보내기">보내기</button>
       </div>
       
-      <button id="feedback-button" class="feedback-button" role="button" aria-label="피드백 제공">피드백 제공</button>
+      <div id="feedback-form" class="feedback-form">
+        <h3>피드백 제공</h3>
+        <select id="feedback-rating">
+          <option value="">만족도를 선택하세요</option>
+          <option value="매우 만족">매우 만족</option>
+          <option value="만족">만족</option>
+          <option value="보통">보통</option>
+          <option value="불만족">불만족</option>
+        </select>
+        <button id="submit-feedback" role="button" aria-label="피드백 제출">제출</button>
+      </div>
+      
+      <div id="disclaimer">법적 구속력 없는 정보로, 상담원 확인 권장</div>
     </div>
-    
-    <div id="disclaimer">법적 구속력 없는 정보로, 상담원 확인 권장</div>
   </div>
 
   <script>
     // Initializing user profile
-    let userProfile = {
+    let userProfile = JSON.parse(localStorage.getItem('hicareBotProfile')) || {
       name: "",
       gender: "",
       age: 0,
@@ -622,8 +676,8 @@
     // Storing persona data
     let personaData = [];
     
-    // Autocomplete suggestions
-    const autocompleteSuggestions = [
+    // Autocomplete suggestions with dynamic additions
+    let autocompleteSuggestions = [
       "자동차보험 견적",
       "실손보험 안내",
       "맞춤 추천 받기",
@@ -634,48 +688,106 @@
       "건강보험 상담"
     ];
     
+    // Analytics for tracking user interactions
+    let interactionAnalytics = JSON.parse(localStorage.getItem('hicareBotAnalytics')) || {
+      buttonClicks: {},
+      intents: {}
+    };
+    
     // Loading and parsing persona CSV
     function loadPersonaData() {
       const loadingIndicator = document.getElementById('loading-indicator');
       loadingIndicator.classList.remove('hidden');
-      Papa.parse(loadFileData("고객페르소나.csv"), {
-        header: true,
-        skipEmptyLines: true,
-        dynamicTyping: false,
-        transformHeader: header => header.trim().replace(/^"|"$/g, ''),
-        transform: (value, header) => {
-          let cleaned = value.trim().replace(/^"|"$/g, '');
-          return cleaned;
-        },
-        complete: results => {
-          personaData = results.data.map(row => ({
-            id: row["ID"],
-            name: row["페르소나명"],
-            ageGroup: row["연령대"],
-            gender: row["성별"],
-            occupation: row["직업"],
-            residence: row["거주지"],
-            vehicle: row["차량 정보"],
-            drivingExperience: row["운전 경력"],
-            family: row["가족 구성"],
-            currentProduct: row["현재 가입 상품 (현대해상)"],
-            specialClauses: row["주요 특약 (현대해상 다이렉트 기준)"],
-            monthlyPremium: parseFloat(row["월 평균 보험료 (추정)"]?.replace("만원", "") || 0),
-            drivingPattern: row["주요 주행 패턴"],
-            drivingHabit: row["운전 습관"],
-            infoChannel: row["정보 탐색 채널"],
-            coreNeeds: row["핵심 니즈"],
-            painPoints: row["페인 포인트"],
-            preferenceReason: row["현대해상 다이렉트 선호 이유/기대"]
-          }));
-          loadingIndicator.classList.add('hidden');
-        },
-        error: err => {
-          console.error("CSV parsing error:", err);
-          loadingIndicator.classList.add('hidden');
-          addBotMessage("데이터 로딩 중 오류가 발생했습니다. 다시 시도해주세요.");
-        }
-      });
+      if (isGoogleScriptAvailable()) {
+        google.script.run
+          .withSuccessHandler(data => {
+            Papa.parse(data, {
+              header: true,
+              skipEmptyLines: true,
+              dynamicTyping: false,
+              transformHeader: header => header.trim().replace(/^"|"$/g, ''),
+              transform: (value, header) => value.trim().replace(/^"|"$/g, ''),
+              complete: results => {
+                personaData = results.data.map(row => ({
+                  id: row["ID"],
+                  name: row["페르소나명"],
+                  ageGroup: row["연령대"],
+                  gender: row["성별"],
+                  occupation: row["직업"],
+                  residence: row["거주지"],
+                  vehicle: row["차량 정보"],
+                  drivingExperience: row["운전 경력"],
+                  family: row["가족 구성"],
+                  currentProduct: row["현재 가입 상품 (현대해상)"],
+                  specialClauses: row["주요 특약 (현대해상 다이렉트 기준)"],
+                  monthlyPremium: parseFloat(row["월 평균 보험료 (추정)"]?.replace("만원", "") || 0),
+                  drivingPattern: row["주요 주행 패턴"],
+                  drivingHabit: row["운전 습관"],
+                  infoChannel: row["정보 탐색 채널"],
+                  coreNeeds: row["핵심 니즈"],
+                  painPoints: row["페인 포인트"],
+                  preferenceReason: row["현대해상 다이렉트 선호 이유/기대"]
+                }));
+                updateAutocompleteSuggestions();
+                loadingIndicator.classList.add('hidden');
+              },
+              error: err => {
+                console.error("CSV parsing error:", err);
+                loadingIndicator.classList.add('hidden');
+                addBotMessage("데이터 로딩 중 오류가 발생했습니다. 다시 시도해주세요.");
+              }
+            });
+          })
+          .withFailureHandler(err => {
+            console.error("Failed to load persona data:", err);
+            loadingIndicator.classList.add('hidden');
+            addBotMessage("데이터 로딩 중 오류가 발생했습니다. 다시 시도해주세요.");
+          })
+          .loadFileData("고객페르소나.csv");
+      } else {
+        // Mock data for non-GAS environment
+        Papa.parse(loadFileData("고객페르소나.csv"), {
+          header: true,
+          skipEmptyLines: true,
+          dynamicTyping: false,
+          transformHeader: header => header.trim().replace(/^"|"$/g, ''),
+          transform: (value, header) => value.trim().replace(/^"|"$/g, ''),
+          complete: results => {
+            personaData = results.data.map(row => ({
+              id: row["ID"],
+              name: row["페르소나명"],
+              ageGroup: row["연령대"],
+              gender: row["성별"],
+              occupation: row["직업"],
+              residence: row["거주지"],
+              vehicle: row["차량 정보"],
+              drivingExperience: row["운전 경력"],
+              family: row["가족 구성"],
+              currentProduct: row["현재 가입 상품 (현대해상)"],
+              specialClauses: row["주요 특약 (현대해상 다이렉트 기준)"],
+              monthlyPremium: parseFloat(row["월 평균 보험료 (추정)"]?.replace("만원", "") || 0),
+              drivingPattern: row["주요 주행 패턴"],
+              drivingHabit: row["운전 습관"],
+              infoChannel: row["정보 탐색 채널"],
+              coreNeeds: row["핵심 니즈"],
+              painPoints: row["페인 포인트"],
+              preferenceReason: row["현대해상 다이렉트 선호 이유/기대"]
+            }));
+            updateAutocompleteSuggestions();
+            loadingIndicator.classList.add('hidden');
+          },
+          error: err => {
+            console.error("CSV parsing error:", err);
+            loadingIndicator.classList.add('hidden');
+            addBotMessage("데이터 로딩 중 오류가 발생했습니다. 다시 시도해주세요.");
+          }
+        });
+      }
+    }
+    
+    // Mock function to simulate file loading
+    function loadFileData(fileName) {
+      return "ID,페르소나명,연령대,성별,직업,거주지,차량 정보,운전 경력,가족 구성,현재 가입 상품 (현대해상),주요 특약 (현대해상 다이렉트 기준),월 평균 보험료 (추정),주요 주행 패턴,운전 습관,정보 탐색 채널,핵심 니즈,페인 포인트,현대해상 다이렉트 선호 이유/기대\n1,김지영,30대,여성,사무직,서울,소형 SUV,5년,2인 가족,자동차보험,대인배상/대물배상,5만원,도심 주행,안전운전,온라인,합리적인 보험료,복잡한 가입 절차,간편한 온라인 가입";
     }
     
     // Matching user to closest persona
@@ -718,9 +830,37 @@
 고객님의 운전 패턴(${persona.drivingPattern})과 니즈(${persona.coreNeeds})에 적합하며, ${persona.preferenceReason}을 제공합니다.`;
     }
     
-    // Mock function to simulate file loading
-    function loadFileData(fileName) {
-      return "ID,페르소나명,연령대,성별,직업,거주지,차량 정보,운전 경력,가족 구성,현재 가입 상품 (현대해상),주요 특약 (현대해상 다이렉트 기준),월 평균 보험료 (추정),주요 주행 패턴,운전 습관,정보 탐색 채널,핵심 니즈,페인 포인트,현대해상 다이렉트 선호 이유/기대\n1,김지영,30대,여성,사무직,서울,소형 SUV,5년,2인 가족,자동차보험,대인배상/대물배상,5만원,도심 주행,안전운전,온라인,합리적인 보험료,복잡한 가입 절차,간편한 온라인 가입";
+    // Updating autocomplete suggestions based on persona and interaction history
+    function updateAutocompleteSuggestions() {
+      const matchedPersona = findMatchingPersona(userProfile);
+      const newSuggestions = [...autocompleteSuggestions];
+      
+      if (matchedPersona) {
+        if (matchedPersona.vehicle) {
+          newSuggestions.push(`${matchedPersona.vehicle} 보험 견적`);
+        }
+        if (matchedPersona.coreNeeds) {
+          newSuggestions.push(matchedPersona.coreNeeds);
+        }
+      }
+      
+      // Add recent popular intents from analytics
+      const popularIntents = Object.keys(interactionAnalytics.intents)
+        .sort((a, b) => interactionAnalytics.intents[b] - interactionAnalytics.intents[a])
+        .slice(0, 3);
+      newSuggestions.push(...popularIntents);
+      
+      autocompleteSuggestions = [...new Set(newSuggestions)]; // Remove duplicates
+    }
+    
+    // Track interaction analytics
+    function trackInteraction(type, value) {
+      if (type === 'button') {
+        interactionAnalytics.buttonClicks[value] = (interactionAnalytics.buttonClicks[value] || 0) + 1;
+      } else if (type === 'intent') {
+        interactionAnalytics.intents[value] = (interactionAnalytics.intents[value] || 0) + 1;
+      }
+      localStorage.setItem('hicareBotAnalytics', JSON.stringify(interactionAnalytics));
     }
     
     // Check for Google Apps Script environment
@@ -832,25 +972,37 @@
       const chatContainer = document.getElementById('chat-container');
       const quickButtonsContainer = document.getElementById('quick-buttons');
       const categoryButtons = document.querySelectorAll('.category-button');
-      const feedbackButton = document.getElementById('feedback-button');
+      const feedbackButton = document.getElementById('submit-feedback');
+      const toggleHistoryButton = document.getElementById('toggle-history');
       
-      // Load persona data and chat history regardless of Google Apps Script environment
+      // Load persona data and chat history
       loadPersonaData();
-      const chatHistory = loadChatHistory();
-      chatHistory.forEach(msg => appendMessage(msg.text, msg.type));
+      if (isGoogleScriptAvailable()) {
+        const userId = btoa(userProfile.name + Date.now());
+        google.script.run
+          .withSuccessHandler(history => {
+            saveChatHistory(history.map(item => ({ text: item.message, type: item.type })));
+            history.forEach(item => appendMessage(item.message, item.type));
+          })
+          .withFailureHandler(err => {
+            console.error("Failed to load chat history:", err);
+            addBotMessage("대화 기록 로드 중 오류가 발생했습니다.");
+          })
+          .getChatHistory(userId);
+      } else {
+        const chatHistory = loadChatHistory();
+        chatHistory.forEach(msg => appendMessage(msg.text, msg.type));
+      }
       
       // Handling start button click
       startButton.addEventListener('click', function() {
-        console.log('Start button clicked'); // Debug log
         welcomeScreen.classList.add('hidden');
         profileScreen.classList.remove('hidden');
         document.getElementById('name').focus();
       });
       
-      // Add keyboard support for start button
       startButton.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
-          console.log('Start button activated via keyboard'); // Debug log
           welcomeScreen.classList.add('hidden');
           profileScreen.classList.remove('hidden');
           document.getElementById('name').focus();
@@ -869,9 +1021,10 @@
         userProfile.insuranceExperience = document.getElementById('insurance-experience').value || "미입력";
         userProfile.interest = document.getElementById('interest').value || "미정/상담필요";
         
-        // Simulate Google Apps Script save (mock for non-GAS environment)
+        localStorage.setItem('hicareBotProfile', JSON.stringify(userProfile));
+        updateAutocompleteSuggestions();
+        
         if (!isGoogleScriptAvailable()) {
-          console.warn('Google Apps Script not detected, simulating profile save');
           profileScreen.classList.add('hidden');
           chatScreen.classList.remove('hidden');
           showTypingIndicator();
@@ -886,11 +1039,13 @@
                 addBotMessage("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
                 if (matchedPersona) {
                   addBotMessage(generateRecommendation(matchedPersona));
+                  showFeedbackForm();
                 }
               } else if (userProfile.age >= 30 && userProfile.age < 50) {
                 addBotMessage("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
                 if (matchedPersona) {
                   addBotMessage(generateRecommendation(matchedPersona));
+                  showFeedbackForm();
                 }
               } else {
                 addBotMessage("안전과 건강을 위한 상담을 도와드리겠습니다.");
@@ -917,11 +1072,13 @@
                   addBotMessage("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
                   if (matchedPersona) {
                     addBotMessage(generateRecommendation(matchedPersona));
+                    showFeedbackForm();
                   }
                 } else if (userProfile.age >= 30 && userProfile.age < 50) {
                   addBotMessage("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
                   if (matchedPersona) {
                     addBotMessage(generateRecommendation(matchedPersona));
+                    showFeedbackForm();
                   }
                 } else {
                   addBotMessage("안전과 건강을 위한 상담을 도와드리겠습니다.");
@@ -941,11 +1098,13 @@
       categoryButtons.forEach(button => {
         button.addEventListener('click', function() {
           const category = this.getAttribute('data-category');
+          trackInteraction('button', category);
           showProductInfo(category);
         });
         button.addEventListener('keypress', function(e) {
           if (e.key === 'Enter') {
             const category = this.getAttribute('data-category');
+            trackInteraction('button', category);
             showProductInfo(category);
           }
         });
@@ -962,17 +1121,46 @@
         showAutocompleteSuggestions(this.value);
       });
       
-      // Hide autocomplete on blur
       userInput.addEventListener('blur', function() {
         setTimeout(() => {
           document.getElementById('autocomplete-suggestions').style.display = 'none';
         }, 200);
       });
       
-      // Handling feedback button
+      // Handling feedback submission
       feedbackButton.addEventListener('click', function() {
-        addBotMessage("피드백을 주셔서 감사합니다! 상담이 도움이 되었는지 알려주세요.");
-        updateQuickButtons(["매우 만족", "만족", "보통", "불만족"]);
+        const rating = document.getElementById('feedback-rating').value;
+        if (!rating) {
+          addBotMessage("만족도를 선택해주세요.");
+          return;
+        }
+        
+        if (isGoogleScriptAvailable()) {
+          google.script.run
+            .withSuccessHandler(() => {
+              addBotMessage("피드백이 저장되었습니다. 감사합니다!");
+              document.getElementById('feedback-form').style.display = 'none';
+            })
+            .withFailureHandler(err => {
+              addBotMessage("피드백 저장 중 오류가 발생했습니다: " + err.message);
+            })
+            .saveFeedback(btoa(userProfile.name + Date.now()), userProfile.name, rating);
+        } else {
+          addBotMessage("피드백이 저장되었습니다. 감사합니다!");
+          document.getElementById('feedback-form').style.display = 'none';
+        }
+        trackInteraction('intent', 'feedback');
+      });
+      
+      // Toggle chat history
+      toggleHistoryButton.addEventListener('click', function() {
+        if (chatContainer.style.maxHeight === '0px' || !chatContainer.style.maxHeight) {
+          chatContainer.style.maxHeight = '400px';
+          toggleHistoryButton.textContent = '대화 기록 숨기기';
+        } else {
+          chatContainer.style.maxHeight = '0px';
+          toggleHistoryButton.textContent = '대화 기록 보기';
+        }
       });
       
       // Sending user message
@@ -982,41 +1170,52 @@
           appendMessage(message, "user");
           userInput.value = '';
           document.getElementById('autocomplete-suggestions').style.display = 'none';
+          trackInteraction('intent', message.toLowerCase());
           showTypingIndicator();
           if (!isGoogleScriptAvailable()) {
             removeTypingIndicator();
             addBotMessage("Google Apps Script 환경이 필요합니다. 현재는 테스트 모드입니다.");
             updateQuickButtonsByMessage(message);
+            showFeedbackForm();
             return;
           }
-          google.script.run.withSuccessHandler(function(reply) {
-            removeTypingIndicator();
-            addBotMessage(reply);
-            if (message === "처음으로") {
-              resetChat();
-            } else {
-              updateQuickButtonsByMessage(message);
-            }
-          }).withFailureHandler(function(error) {
-            removeTypingIndicator();
-            addBotMessage("오류가 발생했습니다: " + error.message);
-          }).processUserInput(message, userProfile);
+          google.script.run
+            .withSuccessHandler(reply => {
+              removeTypingIndicator();
+              addBotMessage(reply);
+              if (message === "처음으로") {
+                resetChat();
+              } else {
+                updateQuickButtonsByMessage(message);
+                showFeedbackForm();
+              }
+            })
+            .withFailureHandler(error => {
+              removeTypingIndicator();
+              addBotMessage("오류가 발생했습니다: " + error.message);
+            })
+            .processUserInput(message, userProfile);
         }
       }
       
       // Handling quick button clicks
       function handleQuickButtonClick(buttonText) {
         userInput.value = buttonText;
+        trackInteraction('button', buttonText);
         sendMessage();
       }
       
       // Updating initial quick buttons
       function updateInitialQuickButtons() {
+        const matchedPersona = findMatchingPersona(userProfile);
         const personalizedButtons = ["자동차보험 안내", "실손의료보험 안내", "맞춤 추천 받기", "상담사 연결"];
         if (userProfile.interest === "자동차보험") {
           personalizedButtons.unshift("자동차보험 견적");
         } else if (userProfile.interest === "실손보험") {
           personalizedButtons.unshift("실손보험 안내");
+        }
+        if (matchedPersona && matchedPersona.vehicle) {
+          personalizedButtons.push(`${matchedPersona.vehicle} 보험 견적`);
         }
         updateQuickButtons(personalizedButtons);
       }
@@ -1036,7 +1235,6 @@
           });
           quickButtonsContainer.appendChild(button);
         });
-        // Adding "처음으로" button
         const backButton = document.createElement('div');
         backButton.className = 'quick-button';
         backButton.textContent = '처음으로';
@@ -1082,11 +1280,13 @@
               addBotMessage("20대 고객님께는 저렴한 보험료와 빠른 온라인 가입 상품을 추천드립니다.");
               if (matchedPersona) {
                 addBotMessage(generateRecommendation(matchedPersona));
+                showFeedbackForm();
               }
             } else if (userProfile.age >= 30 && userProfile.age < 50) {
               addBotMessage("30~40대 고객님께는 자동차보험과 실손보험의 비교 상담을 제공합니다.");
               if (matchedPersona) {
                 addBotMessage(generateRecommendation(matchedPersona));
+                showFeedbackForm();
               }
             } else {
               addBotMessage("안전과 건강을 위한 상담을 도와드리겠습니다.");
@@ -1105,6 +1305,12 @@
             updateQuickButtons(insuranceProducts[category].quickButtons);
           }, Math.random() * 500 + 500);
         }
+      }
+      
+      // Showing feedback form
+      function showFeedbackForm() {
+        document.getElementById('feedback-form').style.display = 'block';
+        document.getElementById('feedback-rating').focus();
       }
       
       // Showing typing indicator
@@ -1132,7 +1338,8 @@
         messageDiv.className = 'message bot';
         messageDiv.innerHTML = `
           <img src="https://i.ibb.co/D1cNQ2j/hicarebot-avatar.png" alt="bot" class="avatar" role="img" aria-label="봇 아바타">
-          <div class="bubble bot">${message}</div>`;
+          <div class="bubble bot">${message}</div>
+          <div class="message-timestamp">${new Date().toLocaleTimeString()}</div>`;
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
         saveChatHistory([...loadChatHistory(), { text: message, type: 'bot' }]);
@@ -1144,7 +1351,8 @@
         messageDiv.className = `message ${type}`;
         messageDiv.innerHTML = `
           <img src="${type === 'bot' ? 'https://i.ibb.co/D1cNQ2j/hicarebot-avatar.png' : 'https://i.ibb.co/JBqtqtT/user-icon.png'}" alt="${type}" class="avatar" role="img" aria-label="${type === 'bot' ? '봇 아바타' : '사용자 아바타'}">
-          <div class="bubble ${type}">${text}</div>`;
+          <div class="bubble ${type}">${text}</div>
+          <div class="message-timestamp">${new Date().toLocaleTimeString()}</div>`;
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
         if (type === 'user') {
