@@ -395,7 +395,7 @@
       background-color: #F0F8FF;
     }
     
-    .feedback-button {
+    .feedback-button, .save-log-button {
       background-color: #F0F8FF;
       border: 1px solid #005BAC;
       color: #005BAC;
@@ -404,15 +404,16 @@
       cursor: pointer;
       font-size: 14px;
       margin-top: 10px;
+      margin-right: 10px;
       display: inline-block;
     }
     
-    .feedback-button:hover {
+    .feedback-button:hover, .save-log-button:hover {
       background-color: #005BAC;
       color: white;
     }
     
-    .feedback-button:focus {
+    .feedback-button:focus, .save-log-button:focus {
       outline: 2px solid #005BAC;
       outline-offset: 2px;
     }
@@ -568,6 +569,7 @@
       </div>
       
       <button id="feedback-button" class="feedback-button" role="button" aria-label="피드백 제공">피드백 제공</button>
+      <button id="save-log-button" class="save-log-button" role="button" aria-label="대화 로그 저장">대화 로그 저장</button>
     </div>
     
     <div id="disclaimer">법적 구속력 없는 정보로, 상담원 확인 권장</div>
@@ -739,6 +741,31 @@
       return saved ? JSON.parse(saved) : [];
     }
     
+    // Save chat log to a text file
+    function saveChatLogToFile() {
+      const chatHistory = loadChatHistory();
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `hicarebot_chatlog_${timestamp}.txt`;
+      let logContent = `현대해상 하이케어(Hi-Care) 봇 대화 로그\n생성일: ${new Date().toLocaleString('ko-KR')}\n사용자: ${userProfile.name || '익명'}\n\n`;
+      
+      chatHistory.forEach(msg => {
+        const sender = msg.type === 'bot' ? '하이케어봇' : '사용자';
+        logContent += `[${sender}]: ${msg.text}\n`;
+      });
+      
+      const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      addBotMessage("대화 로그가 성공적으로 저장되었습니다.");
+    }
+    
     // Validate profile form
     function validateProfileForm() {
       let isValid = true;
@@ -833,6 +860,7 @@
       const quickButtonsContainer = document.getElementById('quick-buttons');
       const categoryButtons = document.querySelectorAll('.category-button');
       const feedbackButton = document.getElementById('feedback-button');
+      const saveLogButton = document.getElementById('save-log-button');
       
       // Load persona data and chat history regardless of Google Apps Script environment
       loadPersonaData();
@@ -841,7 +869,7 @@
       
       // Handling start button click
       startButton.addEventListener('click', function() {
-        console.log('Start button clicked'); // Debug log
+        console.log('Start button clicked');
         welcomeScreen.classList.add('hidden');
         profileScreen.classList.remove('hidden');
         document.getElementById('name').focus();
@@ -850,7 +878,7 @@
       // Add keyboard support for start button
       startButton.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
-          console.log('Start button activated via keyboard'); // Debug log
+          console.log('Start button activated via keyboard');
           welcomeScreen.classList.add('hidden');
           profileScreen.classList.remove('hidden');
           document.getElementById('name').focus();
@@ -973,6 +1001,17 @@
       feedbackButton.addEventListener('click', function() {
         addBotMessage("피드백을 주셔서 감사합니다! 상담이 도움이 되었는지 알려주세요.");
         updateQuickButtons(["매우 만족", "만족", "보통", "불만족"]);
+      });
+      
+      // Handling save log button
+      saveLogButton.addEventListener('click', function() {
+        saveChatLogToFile();
+      });
+      
+      saveLogButton.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          saveChatLogToFile();
+        }
       });
       
       // Sending user message
@@ -1159,4 +1198,4 @@
     });
   </script>
 </body>
-</html> 
+</html>
